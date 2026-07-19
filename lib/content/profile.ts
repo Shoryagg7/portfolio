@@ -16,7 +16,7 @@ export const profile: Profile = {
     github: "https://github.com/Shoryagg7",
     linkedin: "https://linkedin.com/in/shoryag7",
     codeforces: "https://codeforces.com/profile/Shoryagg7",
-    codechef: "https://www.codechef.com/users/shoryag7",
+    codechef: "https://www.codechef.com/users/shoryagg7",
     leetcode: "https://leetcode.com/u/shoryag7",
     email: "shoryag.gupta@gmail.com",
   },

@@ -23,7 +23,7 @@ const channels = [
   { label: "GitHub", href: profile.links.github, icon: GithubIcon, handle: "Shoryagg7" },
   { label: "LinkedIn", href: profile.links.linkedin, icon: LinkedinIcon, handle: "shoryag7" },
   { label: "Codeforces", href: profile.links.codeforces, icon: Code2, handle: "Shoryagg7" },
-  { label: "CodeChef", href: profile.links.codechef, icon: ChefHat, handle: "shoryag7" },
+  { label: "CodeChef", href: profile.links.codechef, icon: ChefHat, handle: "shoryagg7" },
   { label: "LeetCode", href: profile.links.leetcode, icon: Braces, handle: "shoryag7" },
 ];
 
