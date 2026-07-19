@@ -1,0 +1,54 @@
+---
+title: "Rolling Hashes: From Rabin–Karp to Anti-Hash Tests"
+description: "The competitive programmer's guide to polynomial hashing — the O(1) window trick, collision math, and why a fixed base will get you hacked on Codeforces."
+date: "2026-01-20"
+tags: ["Competitive Programming", "Algorithms", "Strings"]
+---
+
+String matching with a rolling hash is one of those techniques that looks like a trick the first time and like infrastructure ever after. It also powers real systems — rsync's block matching and content-defined chunking in dedup storage are rolling hashes wearing work clothes.
+
+## The polynomial hash
+
+Treat a string as digits of a number in base `B`, modulo `M`:
+
+```text
+H(s) = (s[0]·B^(n-1) + s[1]·B^(n-2) + … + s[n-1]) mod M
+```
+
+The property that makes it *rolling*: sliding a window of length `L` one character right is O(1) —
+
+```cpp
+// drop s[i], add s[i+L]
+h = ((h - s[i] * powB[L-1]) * B + s[i + L]) % M;
+```
+
+So comparing a pattern against every window of the text is O(n) after O(n) preprocessing — that's Rabin–Karp. With prefix hashes and precomputed powers, *any* substring's hash is O(1):
+
+```cpp
+// hash of s[l..r), prefix[i] = hash of s[0..i)
+sub = (prefix[r] - prefix[l] * powB[r - l]) % M;
+```
+
+One array, and suddenly "are these two substrings equal?" is a constant-time question — which unlocks binary-searching the longest common prefix, checking palindromes against the reversed string, and counting distinct substrings.
+
+## Collisions: do the math, not the vibes
+
+A single mod near `10^9` gives collision probability ~`n²/M` across `n` compared substrings — for `n = 10^5`, that's a coin flip, not a guarantee. The standard fixes:
+
+- **Double hashing**: two independent `(B, M)` pairs; a collision must happen in both. Effective `M ≈ 10^18`.
+- **One big mod**: `M = 2^61 − 1` with `__int128` multiplication — fast, and large enough alone.
+
+And the classic Codeforces trap: **never use a fixed, well-known base**. Anti-hash tests are crafted against popular `(B, M)` pairs — solutions get hacked in open hacking with strings built to collide. Randomize the base per run:
+
+```cpp
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+const uint64_t B = uniform_int_distribution<uint64_t>(256, M - 2)(rng);
+```
+
+An adversary can't precompute collisions against a base you haven't picked yet.
+
+## When not to hash
+
+Z-function and KMP give *deterministic* linear-time matching — no collision probability at all — and suffix automata handle the heavy-duty substring queries. The rolling hash's niche is flexibility: it answers ad-hoc equality questions that structured algorithms weren't built for, at the price of being probabilistic.
+
+Know the price, randomize the base, double up when `n` is large — and the trick becomes a tool.

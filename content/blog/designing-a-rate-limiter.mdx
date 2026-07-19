@@ -1,0 +1,51 @@
+---
+title: "Designing a Rate Limiter: Token Bucket in Redis, Correctly"
+description: "Fixed windows lie at the edges, sliding logs don't scale — why the token bucket wins, and the atomicity bug most Redis implementations ship with."
+date: "2026-03-08"
+tags: ["System Design", "Redis", "Backend"]
+---
+
+Rate limiting looks like a solved problem until you implement it across multiple API replicas. Then the interesting questions start: where does the state live, what happens at window boundaries, and is your check-and-decrement actually atomic?
+
+## Why not the simple things
+
+**Fixed window** (`INCR` a counter per minute) has an edge problem: 100 requests at 11:59:59 and 100 more at 12:00:01 is 200 requests in two seconds, all "within limit." The counter resets exactly when it shouldn't.
+
+**Sliding window log** (store every request timestamp in a sorted set) is precise but stores one entry per request — memory scales with traffic, which is exactly the resource you're trying to protect.
+
+## Token bucket
+
+Each client gets a bucket with `capacity` tokens refilling at `rate` tokens/second. A request costs one token; empty bucket → 429. The shape this produces matches real clients: bursts are fine, sustained abuse is not.
+
+The state is two numbers per client — token count and last-refill timestamp — regardless of traffic volume.
+
+## The atomicity bug
+
+The tempting implementation reads the bucket, computes the refill in application code, and writes it back. Two replicas doing this concurrently both read "1 token left" and both allow the request. Your limiter now has the same race as an unguarded job queue.
+
+The fix is doing read-refill-decide-write as one atomic unit — in Redis, a Lua script:
+
+```lua
+local tokens = tonumber(redis.call('HGET', KEYS[1], 'tokens') or ARGV[1])
+local last   = tonumber(redis.call('HGET', KEYS[1], 'ts') or ARGV[3])
+local now    = tonumber(ARGV[3])
+
+tokens = math.min(ARGV[1], tokens + (now - last) * ARGV[2])
+local allowed = tokens >= 1
+if allowed then tokens = tokens - 1 end
+
+redis.call('HSET', KEYS[1], 'tokens', tokens, 'ts', now)
+redis.call('EXPIRE', KEYS[1], 3600)
+return allowed and 1 or 0
+```
+
+Redis executes scripts serially, so the check-and-decrement cannot interleave. This is the version DeliverIQ runs in front of every mutating endpoint.
+
+## Details that separate production from demo
+
+- **Fail open or closed?** If Redis is down, do you reject everyone (safe for the backend, terrible for users) or admit everyone (the reverse)? Decide explicitly; don't let an exception handler decide for you.
+- **Tell clients the truth**: return `429` with `Retry-After` and `X-RateLimit-Remaining`. Well-behaved clients will back off if you tell them how.
+- **Limit by the right key.** Per-IP punishes users behind NAT; per-API-key is what you usually mean.
+- **TTL the buckets**, or idle clients leak memory forever.
+
+A rate limiter is a tiny distributed system: shared state, concurrent writers, partial failure. Treat it with the same care as the service it protects.

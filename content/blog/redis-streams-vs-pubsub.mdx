@@ -1,0 +1,43 @@
+---
+title: "Redis Streams vs Pub/Sub: Pick by Delivery Semantics"
+description: "The one question that decides between Redis Pub/Sub, Redis Streams, and Kafka: can any consumer afford to miss this message?"
+date: "2026-04-02"
+tags: ["System Design", "Redis", "Messaging"]
+---
+
+DeliverIQ's first event pipeline used Redis Pub/Sub. It worked perfectly in the demo and lost messages in the first realistic test. Nothing was broken — that's just what Pub/Sub *is*.
+
+## Pub/Sub: a radio broadcast
+
+```
+PUBLISH order-events '{"order_id": 42, "status": "dispatched"}'
+```
+
+Redis Pub/Sub is fire-and-forget. If a subscriber is connected at the moment of publish, it gets the message. If it's restarting, rebalancing, or GC-pausing — the message is gone. There is no replay, no acknowledgment, no offset. It's a radio broadcast: miss the show, miss the show.
+
+That's not a flaw. For ephemeral signals — presence updates, cache-invalidation hints, live cursors — it's exactly right, and it's nearly free.
+
+## Streams: an append-only log
+
+```
+XADD order-events * order_id 42 status dispatched
+XREADGROUP GROUP analytics consumer-1 COUNT 10 STREAMS order-events >
+```
+
+Redis Streams are a persistent log with consumer groups. Messages stay in the stream; each group tracks its own position; unacknowledged messages can be reclaimed from a crashed consumer via `XAUTOCLAIM`. A consumer that was down for an hour resumes where it left off.
+
+This is the same mental model as Kafka — offsets into a durable log — with Redis operational simplicity, single-node durability caveats included.
+
+## The decision question
+
+> **Can any consumer afford to miss this message?**
+
+- **Yes** → Pub/Sub. Cheapest possible fan-out.
+- **No, and I need replay, retention policy, and multi-consumer scaling across partitions** → Kafka.
+- **No, but the scale is modest and I'm already running Redis** → Streams.
+
+For DeliverIQ, order events feed notifications, analytics, and an audit log. An audit log that "usually" has all the events is not an audit log — so the pipeline moved to Kafka, whose consumer groups gave each downstream system independent, durable progress. The rule that survived the migration: **facts go through the log, hints can go through Pub/Sub.**
+
+## The subtle failure mode
+
+Teams pick Pub/Sub because it demos well, then discover delivery semantics *after* the first incident. Semantics are not an implementation detail you can patch later — they are the contract every downstream system silently builds on. Choose them first; the technology follows in one sentence.
