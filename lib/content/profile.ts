@@ -1,4 +1,5 @@
 import type { Profile } from "@/types";
+import { withBasePath } from "@/lib/site";
 
 export const profile: Profile = {
   name: "Shorya Gupta",
@@ -19,7 +20,7 @@ export const profile: Profile = {
     leetcode: "https://leetcode.com/u/shoryag7",
     email: "shoryag.gupta@gmail.com",
   },
-  resumePath: "/resume.pdf",
+  resumePath: withBasePath("/resume.pdf"),
 };
 
 export const heroStats = [

@@ -1,7 +1,6 @@
 import { getAllPosts } from "@/lib/blog";
 import { profile } from "@/lib/content/profile";
-
-const SITE_URL = "https://shoryagupta.dev";
+import { SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-static";
 

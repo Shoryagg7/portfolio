@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   Mail,
   Download,
@@ -77,9 +76,9 @@ export function Contact() {
               {copied ? "Copied" : "Copy email"}
             </Button>
             <Button asChild variant="outline" size="lg">
-              <Link href={profile.resumePath} target="_blank">
+              <a href={profile.resumePath} target="_blank" rel="noopener">
                 <Download aria-hidden /> Resume
-              </Link>
+              </a>
             </Button>
           </Reveal>
 

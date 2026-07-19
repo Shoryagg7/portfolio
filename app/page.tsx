@@ -11,9 +11,6 @@ import { BlogPreview } from "@/components/sections/blog-preview";
 import { Contact } from "@/components/sections/contact";
 import { getAllPosts } from "@/lib/blog";
 
-// Home is static except the Codeforces fetch, which revalidates on its own schedule.
-export const revalidate = 21600;
-
 export default function Home() {
   const posts = getAllPosts();
 

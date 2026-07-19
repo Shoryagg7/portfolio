@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
 import { getAllPosts } from "@/lib/blog";
 import { projects } from "@/lib/content/projects";
+import { SITE_URL } from "@/lib/site";
 
-const SITE_URL = "https://shoryagupta.dev";
+export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

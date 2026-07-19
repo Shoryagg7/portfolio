@@ -1,13 +1,13 @@
-import Link from "next/link";
 import { Mail, Rss } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/components/ui/brand-icons";
 import { profile } from "@/lib/content/profile";
+import { withBasePath } from "@/lib/site";
 
 const links = [
   { href: profile.links.github, label: "GitHub", icon: GithubIcon },
   { href: profile.links.linkedin, label: "LinkedIn", icon: LinkedinIcon },
   { href: `mailto:${profile.links.email}`, label: "Email", icon: Mail },
-  { href: "/feed.xml", label: "RSS feed", icon: Rss },
+  { href: withBasePath("/feed.xml"), label: "RSS feed", icon: Rss },
 ];
 
 export function Footer() {
@@ -19,16 +19,16 @@ export function Footer() {
         </p>
         <div className="flex items-center gap-1">
           {links.map((l) => (
-            <Link
+            <a
               key={l.label}
               href={l.href}
-              target={l.href.startsWith("/") ? undefined : "_blank"}
-              rel={l.href.startsWith("/") ? undefined : "noopener noreferrer"}
+              target={l.href.startsWith("http") ? "_blank" : undefined}
+              rel={l.href.startsWith("http") ? "noopener noreferrer" : undefined}
               aria-label={l.label}
               className="flex size-9 items-center justify-center rounded-md text-faint transition-colors hover:bg-elevated hover:text-foreground"
             >
               <l.icon aria-hidden className="size-4" />
-            </Link>
+            </a>
           ))}
         </div>
       </div>

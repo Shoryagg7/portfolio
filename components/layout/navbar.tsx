@@ -71,12 +71,11 @@ export function Navbar() {
         {/* Desktop nav */}
         <div className="hidden items-center gap-1 md:flex">
           {navItems.map((item) => {
-            const href = onHome ? `#${item.id}` : `/#${item.id}`;
             const isActive = onHome && active === item.id;
             return (
-              <a
+              <Link
                 key={item.id}
-                href={href}
+                href={`/#${item.id}`}
                 className={cn(
                   "relative rounded-md px-3 py-1.5 text-sm transition-colors",
                   isActive ? "text-foreground" : "text-muted hover:text-foreground",
@@ -90,7 +89,7 @@ export function Navbar() {
                   />
                 )}
                 <span className="relative">{item.label}</span>
-              </a>
+              </Link>
             );
           })}
           <button
@@ -143,13 +142,13 @@ export function Navbar() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.04 * i }}
                 >
-                  <a
-                    href={onHome ? `#${item.id}` : `/#${item.id}`}
+                  <Link
+                    href={`/#${item.id}`}
                     onClick={() => setMenuOpen(false)}
                     className="block rounded-lg px-3 py-2.5 font-display text-lg text-muted transition-colors hover:bg-elevated hover:text-foreground"
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 </motion.li>
               ))}
             </ul>

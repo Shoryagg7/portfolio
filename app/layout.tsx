@@ -4,6 +4,7 @@ import "./globals.css";
 import { CommandPaletteProvider } from "@/components/command/command-palette-provider";
 import { profile } from "@/lib/content/profile";
 import { getAllPosts } from "@/lib/blog";
+import { SITE_URL } from "@/lib/site";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,7 +24,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-const siteUrl = "https://shoryagupta.dev";
+const siteUrl = SITE_URL;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

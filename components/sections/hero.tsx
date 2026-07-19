@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Download } from "lucide-react";
 import { Starfield } from "@/components/space/starfield";
@@ -74,9 +73,9 @@ export function Hero() {
           </Magnetic>
           <Magnetic>
             <Button asChild variant="outline" size="lg">
-              <Link href={profile.resumePath} target="_blank">
+              <a href={profile.resumePath} target="_blank" rel="noopener">
                 <Download aria-hidden /> Resume
-              </Link>
+              </a>
             </Button>
           </Magnetic>
         </motion.div>
