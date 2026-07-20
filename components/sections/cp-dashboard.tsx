@@ -2,15 +2,18 @@ import { ArrowUpRight, Radio } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/reveal";
 import { RatingGraph } from "@/components/ui/rating-graph";
-import { StatCounter } from "@/components/ui/stat-counter";
 import { getAllPlatformStats } from "@/lib/services/cp-stats";
 import type { PlatformStats } from "@/types";
+
+function formatStatValue(value: number): string {
+  return Number.isInteger(value) ? value.toString() : value.toFixed(1);
+}
 
 function StatCell({ label, value, suffix = "" }: { label: string; value: number | null; suffix?: string }) {
   return (
     <div>
       <p className="font-display text-xl font-semibold text-foreground md:text-2xl">
-        {value === null ? <span className="text-faint">—</span> : <StatCounter value={value} suffix={suffix} />}
+        {value === null ? <span className="text-faint">—</span> : `${formatStatValue(value)}${suffix}`}
       </p>
       <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-faint">{label}</p>
     </div>

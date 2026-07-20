@@ -6,10 +6,13 @@ import { Starfield } from "@/components/space/starfield";
 import { OrbitRing } from "@/components/space/orbit-ring";
 import { Magnetic } from "@/components/ui/magnetic-button";
 import { Button } from "@/components/ui/button";
-import { StatCounter } from "@/components/ui/stat-counter";
 import { profile, heroStats } from "@/lib/content/profile";
 
 const ease: [number, number, number, number] = [0.21, 0.47, 0.32, 0.98];
+
+function formatStatValue(value: number, decimals = 0): string {
+  return value.toFixed(decimals);
+}
 
 export function Hero() {
   const reduce = useReducedMotion();
@@ -88,11 +91,8 @@ export function Hero() {
             <div key={stat.label} className="px-4 py-5 first:pl-0 md:px-6">
               <dt className="order-last mt-1 font-mono text-[11px] text-faint">{stat.note}</dt>
               <dd className="font-display text-2xl font-semibold text-foreground md:text-3xl">
-                <StatCounter
-                  value={stat.value}
-                  suffix={stat.suffix}
-                  decimals={"decimals" in stat ? stat.decimals : 0}
-                />
+                {formatStatValue(stat.value, "decimals" in stat ? stat.decimals : 0)}
+                {stat.suffix}
               </dd>
               <dd className="mt-0.5 text-xs text-muted">{stat.label}</dd>
             </div>
