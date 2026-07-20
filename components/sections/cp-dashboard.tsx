@@ -2,7 +2,6 @@ import { ArrowUpRight, Radio } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/reveal";
 import { RatingTrajectory } from "@/components/ui/rating-trajectory";
-import { TopicStrengths } from "@/components/ui/topic-strengths";
 import { DifficultySplit } from "@/components/ui/difficulty-split";
 import { StatCounter } from "@/components/ui/stat-counter";
 import { getAllPlatformStats } from "@/lib/services/cp-stats";
@@ -73,7 +72,7 @@ export async function CPDashboard() {
       id="competitive-programming"
       kicker="05 · competitive programming"
       title="Can I solve hard problems?"
-      lead="2000+ problems across three platforms. Codeforces Expert — earned one contest at a time."
+      lead="2000+ problems solved across Codeforces, CodeChef, LeetCode, and GeeksforGeeks. Codeforces Expert — earned one contest at a time."
     >
       <Stagger className="grid gap-4 md:grid-cols-3">
         {allStats.map((stats) => (
@@ -84,26 +83,19 @@ export async function CPDashboard() {
       </Stagger>
 
       <Reveal delay={0.15} className="mt-4">
-        <RatingTrajectory platforms={allStats} />
+        <RatingTrajectory stats={codeforces} />
       </Reveal>
 
-      {(codeforces?.topTags?.length || leetcode?.difficultySplit) && (
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
-          {codeforces?.topTags?.length ? (
-            <Reveal delay={0.2}>
-              <TopicStrengths tags={codeforces.topTags} total={codeforces.problemsSolved} />
-            </Reveal>
-          ) : null}
-          {leetcode?.difficultySplit ? (
-            <Reveal delay={0.28}>
-              <DifficultySplit
-                split={leetcode.difficultySplit}
-                total={leetcode.problemsSolved}
-              />
-            </Reveal>
-          ) : null}
-        </div>
-      )}
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <Reveal delay={0.2}>
+          <RatingTrajectory stats={leetcode} />
+        </Reveal>
+        {leetcode?.difficultySplit ? (
+          <Reveal delay={0.28}>
+            <DifficultySplit split={leetcode.difficultySplit} total={leetcode.problemsSolved} />
+          </Reveal>
+        ) : null}
+      </div>
     </Section>
   );
 }

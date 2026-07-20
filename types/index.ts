@@ -90,15 +90,8 @@ export interface PlatformStats {
   rankLabel: string;
   live: boolean;
   ratingHistory?: number[];
-  /** Most-solved problem topics, highest first (Codeforces). */
-  topTags?: TagCount[];
   /** Solved split by problem difficulty (LeetCode). */
   difficultySplit?: DifficultySplit;
-}
-
-export interface TagCount {
-  tag: string;
-  count: number;
 }
 
 export interface DifficultySplit {

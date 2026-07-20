@@ -24,14 +24,6 @@ const staticStats: Record<string, PlatformStats> = {
     contests: 16,
     rankLabel: "Expert",
     live: false,
-    topTags: [
-      { tag: "greedy", count: 153 },
-      { tag: "math", count: 119 },
-      { tag: "dp", count: 90 },
-      { tag: "implementation", count: 60 },
-      { tag: "brute force", count: 57 },
-      { tag: "sortings", count: 56 },
-    ],
   },
   codechef: {
     platform: "codechef",
@@ -82,10 +74,7 @@ interface CFRatingResult {
 }
 interface CFStatusResult {
   status: string;
-  result?: Array<{
-    verdict?: string;
-    problem: { contestId?: number; index?: string; tags?: string[] };
-  }>;
+  result?: Array<{ verdict?: string; problem: { contestId?: number; index?: string } }>;
 }
 
 async function fetchCodeforces(): Promise<PlatformStats> {
@@ -118,27 +107,14 @@ async function fetchCodeforces(): Promise<PlatformStats> {
     }
 
     let problemsSolved = fallback.problemsSolved;
-    let topTags = fallback.topTags;
     if (statusRes.ok) {
       const statusData = (await statusRes.json()) as CFStatusResult;
       if (statusData.status === "OK" && statusData.result) {
         const solved = new Set<string>();
-        const tagCounts = new Map<string, number>();
         for (const sub of statusData.result) {
-          if (sub.verdict !== "OK") continue;
-          const key = `${sub.problem.contestId}-${sub.problem.index}`;
-          if (solved.has(key)) continue; // count each problem's tags once
-          solved.add(key);
-          for (const tag of sub.problem.tags ?? []) {
-            tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
-          }
+          if (sub.verdict === "OK") solved.add(`${sub.problem.contestId}-${sub.problem.index}`);
         }
         problemsSolved = solved.size;
-        const ranked = [...tagCounts.entries()]
-          .map(([tag, count]) => ({ tag, count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 6);
-        if (ranked.length) topTags = ranked;
       }
     }
 
@@ -152,7 +128,6 @@ async function fetchCodeforces(): Promise<PlatformStats> {
       contests,
       problemsSolved,
       ratingHistory,
-      topTags,
       live: true,
     };
   } catch {

@@ -25,7 +25,7 @@ export const profile: Profile = {
 
 export const heroStats = [
   { label: "Codeforces", value: 1687, suffix: "", note: "Expert · peak rating" },
-  { label: "Problems solved", value: 2000, suffix: "+", note: "CF · LC · CC" },
+  { label: "Problems solved", value: 2000, suffix: "+", note: "CF · LC · CC · GfG" },
   { label: "CGPA", value: 8.87, suffix: "", note: "Thapar Institute", decimals: 2 },
 ] as const;
 
