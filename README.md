@@ -70,7 +70,7 @@ Three properties make this safe to ship:
 
 A scheduled GitHub Action rebuilds daily at **02:30 UTC**, so ratings stay current without a server.
 
-> **Design note:** the numbers render as server text rather than count-up animations. An animated counter that hydrates from `0` shows a stale zero if the observer never fires — which is exactly what happened on mobile. Correct-on-first-paint beat the nicer animation.
+> **Design note — the counters.** The stats count up when scrolled into view, but the animation is strictly *additive*: the real number is what the server renders and what React holds by default, and the count-up only overrides it while actively running. An earlier version initialized to `0` and animated upward, which meant a viewport observer that never fired left a permanent zero on screen — exactly what happened on mobile. Inverting the default makes the failure mode "no animation" instead of "wrong number," and the sweep is delayed to match each container's reveal so it's fully visible rather than half-finished by the time it fades in.
 
 ## Architecture
 
