@@ -24,6 +24,14 @@ const staticStats: Record<string, PlatformStats> = {
     contests: 16,
     rankLabel: "Expert",
     live: false,
+    topTags: [
+      { tag: "greedy", count: 153 },
+      { tag: "math", count: 119 },
+      { tag: "dp", count: 90 },
+      { tag: "implementation", count: 60 },
+      { tag: "brute force", count: 57 },
+      { tag: "sortings", count: 56 },
+    ],
   },
   codechef: {
     platform: "codechef",
@@ -48,6 +56,7 @@ const staticStats: Record<string, PlatformStats> = {
     contests: 23,
     rankLabel: "Top 5%",
     live: false,
+    difficultySplit: { easy: 271, medium: 451, hard: 122 },
   },
 };
 
@@ -73,7 +82,10 @@ interface CFRatingResult {
 }
 interface CFStatusResult {
   status: string;
-  result?: Array<{ verdict?: string; problem: { contestId?: number; index?: string } }>;
+  result?: Array<{
+    verdict?: string;
+    problem: { contestId?: number; index?: string; tags?: string[] };
+  }>;
 }
 
 async function fetchCodeforces(): Promise<PlatformStats> {
@@ -106,14 +118,27 @@ async function fetchCodeforces(): Promise<PlatformStats> {
     }
 
     let problemsSolved = fallback.problemsSolved;
+    let topTags = fallback.topTags;
     if (statusRes.ok) {
       const statusData = (await statusRes.json()) as CFStatusResult;
       if (statusData.status === "OK" && statusData.result) {
         const solved = new Set<string>();
+        const tagCounts = new Map<string, number>();
         for (const sub of statusData.result) {
-          if (sub.verdict === "OK") solved.add(`${sub.problem.contestId}-${sub.problem.index}`);
+          if (sub.verdict !== "OK") continue;
+          const key = `${sub.problem.contestId}-${sub.problem.index}`;
+          if (solved.has(key)) continue; // count each problem's tags once
+          solved.add(key);
+          for (const tag of sub.problem.tags ?? []) {
+            tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+          }
         }
         problemsSolved = solved.size;
+        const ranked = [...tagCounts.entries()]
+          .map(([tag, count]) => ({ tag, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 6);
+        if (ranked.length) topTags = ranked;
       }
     }
 
@@ -127,6 +152,7 @@ async function fetchCodeforces(): Promise<PlatformStats> {
       contests,
       problemsSolved,
       ratingHistory,
+      topTags,
       live: true,
     };
   } catch {
@@ -171,9 +197,17 @@ async function fetchLeetCode(): Promise<PlatformStats> {
     const user = data.data?.matchedUser;
     if (!user) return fallback;
 
-    const totalSolved = user.submitStatsGlobal?.acSubmissionNum?.find(
-      (d) => d.difficulty === "All",
-    )?.count;
+    const byDifficulty = user.submitStatsGlobal?.acSubmissionNum ?? [];
+    const countFor = (d: string) => byDifficulty.find((x) => x.difficulty === d)?.count;
+    const totalSolved = countFor("All");
+
+    const easy = countFor("Easy");
+    const medium = countFor("Medium");
+    const hard = countFor("Hard");
+    const difficultySplit =
+      easy !== undefined && medium !== undefined && hard !== undefined
+        ? { easy, medium, hard }
+        : fallback.difficultySplit;
 
     const attended = (data.data?.userContestRankingHistory ?? []).filter((h) => h.attended);
     const ratings = attended.map((h) => Math.round(h.rating));
@@ -191,6 +225,7 @@ async function fetchLeetCode(): Promise<PlatformStats> {
       contests: attended.length || fallback.contests,
       rankLabel,
       ratingHistory: ratings.length >= 2 ? ratings : undefined,
+      difficultySplit,
       live: true,
     };
   } catch {

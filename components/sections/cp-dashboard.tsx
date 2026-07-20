@@ -1,7 +1,9 @@
 import { ArrowUpRight, Radio } from "lucide-react";
 import { Section } from "@/components/layout/section";
 import { Reveal, Stagger, StaggerItem } from "@/components/motion/reveal";
-import { RatingGraph } from "@/components/ui/rating-graph";
+import { RatingTrajectory } from "@/components/ui/rating-trajectory";
+import { TopicStrengths } from "@/components/ui/topic-strengths";
+import { DifficultySplit } from "@/components/ui/difficulty-split";
 import { StatCounter } from "@/components/ui/stat-counter";
 import { getAllPlatformStats } from "@/lib/services/cp-stats";
 import type { PlatformStats } from "@/types";
@@ -64,6 +66,7 @@ function PlatformCard({ stats }: { stats: PlatformStats }) {
 export async function CPDashboard() {
   const allStats = await getAllPlatformStats();
   const codeforces = allStats.find((s) => s.platform === "codeforces");
+  const leetcode = allStats.find((s) => s.platform === "leetcode");
 
   return (
     <Section
@@ -81,18 +84,26 @@ export async function CPDashboard() {
       </Stagger>
 
       <Reveal delay={0.15} className="mt-4">
-        <div className="rounded-xl border border-edge bg-raised/80 p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-sm font-medium text-foreground">
-              Codeforces rating trajectory
-            </h3>
-            <span className="font-mono text-[10px] text-faint">
-              {codeforces?.live ? "official Codeforces API · cached 6h" : "representative curve"}
-            </span>
-          </div>
-          <RatingGraph history={codeforces?.ratingHistory} label="contest rating over time" />
-        </div>
+        <RatingTrajectory platforms={allStats} />
       </Reveal>
+
+      {(codeforces?.topTags?.length || leetcode?.difficultySplit) && (
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          {codeforces?.topTags?.length ? (
+            <Reveal delay={0.2}>
+              <TopicStrengths tags={codeforces.topTags} total={codeforces.problemsSolved} />
+            </Reveal>
+          ) : null}
+          {leetcode?.difficultySplit ? (
+            <Reveal delay={0.28}>
+              <DifficultySplit
+                split={leetcode.difficultySplit}
+                total={leetcode.problemsSolved}
+              />
+            </Reveal>
+          ) : null}
+        </div>
+      )}
     </Section>
   );
 }
