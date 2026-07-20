@@ -10,7 +10,7 @@ export const profile: Profile = {
   location: "India",
   university: "Thapar Institute of Engineering and Technology",
   degree: "B.E. Computer Science Engineering",
-  gpa: "8.8 / 10.0",
+  gpa: "8.87 / 10.0",
   years: "2023 — 2027",
   links: {
     github: "https://github.com/Shoryagg7",
@@ -26,7 +26,7 @@ export const profile: Profile = {
 export const heroStats = [
   { label: "Codeforces", value: 1687, suffix: "", note: "Expert · peak rating" },
   { label: "Problems solved", value: 2000, suffix: "+", note: "CF · LC · CC" },
-  { label: "GPA", value: 8.8, suffix: "", note: "Thapar Institute", decimals: 1 },
+  { label: "CGPA", value: 8.87, suffix: "", note: "Thapar Institute", decimals: 2 },
 ] as const;
 
 export const currentlyExploring = [

@@ -22,26 +22,31 @@ export function StatCounter({
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
   const reduce = useReducedMotion();
-  const [display, setDisplay] = useState(0);
+  const [display, setDisplay] = useState(value);
+  const shown = !inView || reduce ? value : display;
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || reduce) return;
+    if (display === value) return;
+
     let raf = 0;
     const start = performance.now();
-    const ms = reduce ? 0 : duration * 1000;
+    const from = display;
+    const delta = value - from;
+    const ms = duration * 1000;
     const tick = (now: number) => {
-      const t = ms === 0 ? 1 : Math.min((now - start) / ms, 1);
+      const t = Math.min((now - start) / ms, 1);
       const eased = 1 - Math.pow(1 - t, 3);
-      setDisplay(value * eased);
+      setDisplay(from + delta * eased);
       if (t < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [inView, value, duration, reduce]);
+  }, [inView, value, duration, reduce, display]);
 
   return (
     <span ref={ref} className={className}>
-      {display.toFixed(decimals)}
+      {shown.toFixed(decimals)}
       {suffix}
     </span>
   );

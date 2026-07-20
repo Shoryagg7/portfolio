@@ -55,6 +55,10 @@ function titleCase(s: string): string {
   return s.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function positiveOrFallback(value: number | null | undefined, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
 // ---------------------------------------------------------------------------
 // Codeforces — official API
 // ---------------------------------------------------------------------------
@@ -115,8 +119,10 @@ async function fetchCodeforces(): Promise<PlatformStats> {
 
     return {
       ...fallback,
-      currentRating: user.rating ?? fallback.currentRating,
-      peakRating: user.maxRating ?? fallback.peakRating,
+      // Codeforces returns 0 for unrated/invalid profiles; keep the verified
+      // resume numbers instead of surfacing a misleading zero.
+      currentRating: positiveOrFallback(user.rating, fallback.currentRating!),
+      peakRating: positiveOrFallback(user.maxRating, fallback.peakRating!),
       rankLabel: user.maxRank ? titleCase(user.maxRank) : fallback.rankLabel,
       contests,
       problemsSolved,

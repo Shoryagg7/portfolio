@@ -61,7 +61,7 @@ export function About() {
                   <h3 className="font-medium text-foreground">{profile.university}</h3>
                   <p className="mt-1 text-sm text-muted">{profile.degree}</p>
                   <p className="mt-2 font-mono text-xs text-faint">
-                    {profile.years} · GPA {profile.gpa}
+                    {profile.years} · CGPA {profile.gpa}
                   </p>
                   <p className="mt-1 font-mono text-xs text-faint">
                     Merit Scholarship — academic excellence (9.34 AGPA)
