@@ -27,7 +27,7 @@ export function Philosophy() {
       id="philosophy"
       kicker="02 · philosophy"
       title="How I think about engineering"
-      lead="Principles I actually apply — each one traceable to a decision in my projects."
+      lead="Principles I actually apply. Each one traces back to a decision in my projects."
     >
       <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {principles.map((p) => {

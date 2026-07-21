@@ -1,11 +1,11 @@
 ---
 title: "Turning Postgres into a Job Queue with SKIP LOCKED"
-description: "Why SELECT FOR UPDATE SKIP LOCKED is the most underrated primitive for distributed work claiming — and how it fixed a real double-dispatch race."
+description: "Why SELECT FOR UPDATE SKIP LOCKED is the most underrated primitive for distributed work claiming, and how it fixed a real double-dispatch race."
 date: "2026-05-14"
 tags: ["System Design", "Databases", "Concurrency"]
 ---
 
-Every distributed dispatch system eventually hits the same bug: two workers grab the same job. I hit it in DeliverIQ while load-testing three API replicas against one orders table — occasionally, two replicas would claim the same order and a rider got assigned twice.
+Every distributed dispatch system eventually hits the same bug: two workers grab the same job. I hit it in DeliverIQ while load-testing three API replicas against one orders table. Every so often, two replicas would claim the same order and a rider got assigned twice.
 
 The naive claim looks innocent:
 
@@ -34,16 +34,16 @@ COMMIT;
 
 ## Why this beats the alternatives
 
-- **Advisory locks** work but push lock bookkeeping into your application — you now own lock namespacing and release-on-crash semantics.
-- **A dedicated queue (SQS, RabbitMQ)** decouples claiming from your data, which means a job can be delivered while its row says something else. With SKIP LOCKED, the claim and the state change commit *in the same transaction* — atomically, or not at all.
+- **Advisory locks** work, but they push lock bookkeeping into your application. Now you own lock namespacing and release-on-crash semantics.
+- **A dedicated queue (SQS, RabbitMQ)** decouples claiming from your data, which means a job can be delivered while its row says something else. With SKIP LOCKED, the claim and the state change commit *in the same transaction*. Atomically, or not at all.
 - **Crash safety comes free.** If a worker dies mid-claim, the transaction rolls back, the row lock evaporates, and the order is claimable again. Nobody has to notice.
 
 ## The trade-offs (write them down)
 
-- Claims are bounded by transaction lifetime. Long-running work should claim, commit a `claimed` status, and process outside the transaction — or the row lock outlives its welcome.
+- Claims are bounded by transaction lifetime. Long-running work should claim, commit a `claimed` status, and process outside the transaction. Otherwise the row lock outlives its welcome.
 - Locked rows are invisible to other workers' scans, so "queue depth" queries need `SKIP LOCKED` awareness too.
-- Postgres is now on your hot path for both data *and* dispatch. At some throughput, that stops being free. Measure — for DeliverIQ, ~123 RPS with p99 of 220 ms was well inside comfortable territory.
+- Postgres is now on your hot path for both data *and* dispatch. At some throughput that stops being free, so measure it. For DeliverIQ, ~123 RPS at p99 220 ms sat well inside comfortable territory.
 
-After the change, the Locust suite that reliably reproduced the double dispatch ran clean: zero duplicate assignments under concurrent load.
+After the change, the Locust suite that used to reproduce the double dispatch ran clean. Zero duplicate assignments under concurrent load.
 
-The bigger lesson: the database you already run is often the most correct queue you can get. Reach for new infrastructure when it buys you something the transaction model can't — not before.
+The bigger lesson: the database you already run is often the most correct queue you can get. Reach for new infrastructure when it buys you something the transaction model can't, and not before.

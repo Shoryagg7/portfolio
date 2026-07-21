@@ -11,7 +11,7 @@ export function BlogPreview({ posts }: { posts: PostMeta[] }) {
       id="blog"
       kicker="06 · writing"
       title="Can I explain hard ideas?"
-      lead="Short technical notes and deeper system design breakdowns — one space, tagged by topic."
+      lead="Short technical notes and longer system design breakdowns, kept in one place and tagged by topic."
     >
       <Stagger className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {posts.slice(0, 3).map((post) => (

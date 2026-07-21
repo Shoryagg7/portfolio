@@ -12,7 +12,7 @@ export function ProjectsGrid() {
       id="projects"
       kicker="04 · projects"
       title="Built, load-tested, shipped"
-      lead="Not weekend demos — systems with race conditions found and fixed, metrics measured, and trade-offs written down. Each one opens into a full case study."
+      lead="Not weekend demos. These have race conditions I found and fixed, numbers I actually measured, and trade-offs written down. Each one opens into a full case study."
     >
       <Stagger className="grid gap-5 lg:grid-cols-2">
         {projects.map((p) => (

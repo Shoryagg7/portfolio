@@ -21,8 +21,8 @@ export default function NotFound() {
           Node unreachable
         </h1>
         <p className="mx-auto mt-4 max-w-md text-muted">
-          This route isn&apos;t part of the topology. The packet was dropped — no retries
-          scheduled, but the way home is known-good.
+          This route isn&apos;t part of the topology. The packet was dropped and no retries
+          are scheduled, but the way home is known-good.
         </p>
         <div className="mt-8 flex justify-center">
           <Button asChild size="lg">

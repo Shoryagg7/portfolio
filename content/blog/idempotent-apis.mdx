@@ -1,11 +1,11 @@
 ---
 title: "Idempotent APIs: What Happens When This Is Called Twice?"
-description: "Retries are not an edge case — they're the network doing its job. Designing mutation endpoints that survive being called twice."
+description: "Retries are not an edge case. They're the network doing its job. Designing mutation endpoints that survive being called twice."
 date: "2026-02-11"
 tags: ["System Design", "Backend", "Reliability"]
 ---
 
-A mobile client sends `POST /orders`. The request succeeds — but the response is lost to a flaky network. The client does the only reasonable thing: it retries. Without idempotency, the customer just ordered twice.
+A mobile client sends `POST /orders`. The request succeeds, but the response is lost to a flaky network. The client does the only reasonable thing and retries. Without idempotency, the customer just ordered twice.
 
 The uncomfortable truth: **at-least-once delivery is the default behavior of every retrying client**, which means every mutating endpoint will eventually be called twice with the same intent. The only question is whether you designed for it.
 
@@ -22,20 +22,20 @@ Server-side, the flow is:
 
 1. Look up the key in Redis.
 2. **Seen with a stored response** → return that response. Don't re-execute anything.
-3. **Seen but still in flight** → return `409` or wait; never run the operation concurrently with itself.
+3. **Seen but still in flight** → return `409` or wait. Never run the operation concurrently with itself.
 4. **New** → record the key as in-flight, execute, store the response against the key, return it.
 
-The subtle requirement is step 4's write: recording the key and the operation's effect must be atomic. In DeliverIQ, the key insert lives in the same Postgres transaction as the order creation — if the transaction rolls back, the key vanishes with it, and a retry gets a clean attempt.
+The subtle requirement is step 4's write: recording the key and the operation's effect must be atomic. In DeliverIQ, the key insert lives in the same Postgres transaction as the order creation. If that transaction rolls back, the key vanishes with it and a retry gets a clean attempt.
 
 ## Design decisions worth writing down
 
 - **TTL is a product question.** How long is a retry still a retry, rather than a new intent? Stripe keeps keys for 24 hours. Anything is fine as long as it's deliberate.
 - **Same key, different body?** Reject it (`422`). It's a client bug, and silently honoring either version hides it.
 - **Store the full response**, including the status code. A retried request that originally failed validation should fail the same way, not get re-evaluated against new state.
-- **Fencing matters for background work.** A worker that pauses (GC, network partition), gets its job reassigned, then wakes up and writes — that's the same problem wearing a different hat. Version checks or fencing tokens close it.
+- **Fencing matters for background work.** A worker pauses for GC or a network partition, its job gets reassigned, and then it wakes up and writes anyway. Same problem wearing a different hat. Version checks or fencing tokens close it.
 
 ## The mindset
 
-`GET`, `PUT`, and `DELETE` are idempotent by HTTP's definition; `POST` never is by accident. So the review question I now ask of every endpoint that mutates state is the title of this post: *what happens when this is called twice?*
+`GET`, `PUT`, and `DELETE` are idempotent by HTTP's definition. `POST` never is by accident. So the review question I now ask of every endpoint that mutates state is the title of this post: *what happens when this is called twice?*
 
 If the answer is "the same thing as once," retries are boring. Boring is the goal.

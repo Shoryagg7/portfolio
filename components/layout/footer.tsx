@@ -15,7 +15,7 @@ export function Footer() {
     <footer className="border-t border-edge bg-raised/40">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-faint sm:flex-row md:px-8">
         <p className="font-mono text-xs">
-          © {new Date().getFullYear()} {profile.name} · built with Next.js — deployed at the edge
+          © {new Date().getFullYear()} {profile.name} · built with Next.js · deployed on GitHub Pages
         </p>
         <div className="flex items-center gap-1">
           {links.map((l) => (

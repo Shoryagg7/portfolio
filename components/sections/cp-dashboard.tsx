@@ -72,7 +72,7 @@ export async function CPDashboard() {
       id="competitive-programming"
       kicker="05 · competitive programming"
       title="Can I solve hard problems?"
-      lead="2000+ problems solved across Codeforces, CodeChef, LeetCode, and GeeksforGeeks. Codeforces Expert — earned one contest at a time."
+      lead="2000+ problems solved across Codeforces, CodeChef, LeetCode, and GeeksforGeeks. Codeforces Expert, earned one contest at a time."
     >
       <Stagger className="grid gap-4 md:grid-cols-3">
         {allStats.map((stats) => (

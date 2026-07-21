@@ -32,18 +32,16 @@ export function About() {
             unrepresentable.
           </p>
           <p>
-            My path here started with competitive programming — thousands of problems that
+            My path here started with competitive programming. Thousands of problems that
             taught me to reason precisely about invariants, complexity, and edge cases. At
-            some point I realized that a race condition in a dispatch service is just another
+            some point I realized a race condition in a dispatch service is just another
             invariant violation, except it only reproduces at 2 a.m. under production load.
-            That intersection — algorithmic rigor applied to real infrastructure — is exactly
-            where I want to work.
+            Algorithmic rigor applied to real infrastructure is where I want to work.
           </p>
           <p>
             So I build systems that take failure seriously: two-phase claims over Postgres row
             locks, replayable Kafka streams, idempotent endpoints, rate limits, dashboards.
-            Not because a checklist said so, but because I&apos;ve load-tested what happens
-            without them.
+            I didn&apos;t get there from a checklist. I load-tested what happens without them.
           </p>
           <div className="flex flex-wrap gap-2 pt-2">
             {focusAreas.map((area) => (
@@ -64,7 +62,7 @@ export function About() {
                     {profile.years} · CGPA {profile.gpa}
                   </p>
                   <p className="mt-1 font-mono text-xs text-faint">
-                    Merit Scholarship — academic excellence (9.34 AGPA)
+                    Merit Scholarship for academic excellence (9.34 AGPA)
                   </p>
                 </div>
               </div>

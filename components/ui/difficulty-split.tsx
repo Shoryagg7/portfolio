@@ -67,8 +67,8 @@ export function DifficultySplit({ split, total }: { split: Split; total: number 
         <span className="font-display text-lg font-semibold text-accent-bright">
           {Math.round(((split.medium + split.hard) / sum) * 100)}%
         </span>{" "}
-        of solves are Medium or Hard — {split.medium + split.hard} problems past the
-        easy tier.
+        of solves are Medium or Hard. That&apos;s {split.medium + split.hard} problems past
+        the easy tier.
       </p>
     </div>
   );

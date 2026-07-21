@@ -59,7 +59,7 @@ export function Contact() {
             </h2>
             <p className="mx-auto mt-4 max-w-md text-muted">
               Open to Software Engineer roles in real-time, high-availability systems. The
-              fastest route is email — I reply quickly.
+              fastest route is email, and I reply quickly.
             </p>
           </Reveal>
 

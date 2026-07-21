@@ -6,7 +6,7 @@ export const projects: Project[] = [
     name: "DeliverIQ",
     tagline: "Distributed Order Dispatch API",
     summary:
-      "A horizontally scaled dispatch service that assigns delivery orders to riders with zero duplicate assignments under concurrent load — two-phase claiming, Kafka event streaming, and production-grade hardening.",
+      "A dispatch service that hands delivery orders to riders across three API replicas without ever assigning one twice, even under concurrent load. Built on two-phase claiming, Kafka event streams, and the hardening a service needs before real traffic hits it.",
     year: "2026",
     stack: [
       "Python",
@@ -19,15 +19,15 @@ export const projects: Project[] = [
       "Grafana",
     ],
     overview:
-      "DeliverIQ is a distributed order-dispatch backend: orders arrive, a scheduler prioritizes them, and riders are matched and assigned — across three API replicas working on the same queue without stepping on each other. The interesting problems are all concurrency and reliability: how do multiple workers claim work safely, how do downstream systems learn about events durably, and how does the system behave when a component fails mid-assignment.",
+      "DeliverIQ is a distributed order-dispatch backend. Orders arrive, a scheduler prioritizes them, riders get matched and assigned. All of that runs across three API replicas working the same queue without stepping on each other. The interesting problems here are concurrency and reliability. How do multiple workers claim work safely? How do downstream systems learn about events durably? And what happens when a component dies halfway through an assignment?",
     problem:
-      "Order dispatch looks simple until you run more than one instance. Two replicas polling the same table will grab the same order, and a rider gets assigned twice — or an order is dispatched, the process dies before commit, and the order is lost. The system needed horizontal scaling with exactly-one assignment semantics, fair rider matching that doesn't starve low-priority orders, and delivery of order events to multiple independent consumers without losing anything on restart.",
+      "Order dispatch looks simple until you run more than one instance. Two replicas polling the same table will grab the same order, and a rider gets assigned twice. Or an order is dispatched, the process dies before the commit lands, and the order disappears. What the system needed was horizontal scaling with exactly-one assignment semantics, rider matching that stays fair without starving low-priority orders, and event delivery to several independent consumers that survives a restart intact.",
     architectureNotes: [
       "Three stateless FastAPI replicas behind a load balancer; all coordination happens in PostgreSQL and Redis, never in process memory.",
-      "Two-phase claiming: replicas claim orders with SELECT … FOR UPDATE SKIP LOCKED inside a transaction, then confirm assignment in a second phase — a crash between phases releases the row lock and the order is re-claimable.",
+      "Two-phase claiming: replicas claim orders with SELECT … FOR UPDATE SKIP LOCKED inside a transaction, then confirm the assignment in a second phase. If a replica dies between the two, the row lock releases and the order becomes claimable again.",
       "A priority-queue scheduler (O(log n)) with time-based aging so old low-priority orders eventually outrank fresh high-priority ones.",
       "Geohash-based rider matching: riders are indexed by geohash cell, turning nearest-rider lookup from an O(n) scan into an O(1) cell lookup with neighbor expansion.",
-      "Order events stream through Kafka to independent notification, analytics, and audit consumer groups — each with its own offset, so a slow consumer never blocks the others.",
+      "Order events stream through Kafka to independent notification, analytics, and audit consumer groups. Each group tracks its own offset, so a slow consumer never blocks the others.",
       "Redis provides token-bucket rate limiting and idempotency-key storage for safe client retries.",
     ],
     diagram: {
@@ -64,15 +64,15 @@ export const projects: Project[] = [
       {
         title: "SELECT FOR UPDATE SKIP LOCKED for work claiming",
         context:
-          "Three API replicas poll the same orders table for dispatchable work. Under load testing, two replicas would occasionally claim the same order — a classic double-dispatch race.",
+          "Three API replicas poll the same orders table for dispatchable work. Under load testing, two of them would occasionally claim the same order. A classic double-dispatch race.",
         decision:
           "Claim orders with SELECT … FOR UPDATE SKIP LOCKED inside a transaction, wrapped in a two-phase claim-then-confirm flow.",
         why:
-          "SKIP LOCKED lets each replica atomically lock the next unclaimed rows and skip rows other replicas already hold — no external lock manager, no advisory-lock bookkeeping, and the database guarantees mutual exclusion. A crash mid-claim rolls back the transaction and the order becomes claimable again automatically.",
+          "SKIP LOCKED lets each replica atomically lock the next unclaimed rows and skip past anything another replica already holds. No external lock manager, no advisory-lock bookkeeping. The database handles mutual exclusion itself. And a crash mid-claim just rolls back the transaction, which makes the order claimable again with no cleanup job involved.",
         tradeoffs:
-          "Claiming is tied to Postgres transaction lifetimes, so long-running claims hold row locks; queue depth visibility requires care because locked rows are invisible to other workers' scans. A dedicated queue (SQS, RabbitMQ) would decouple this but adds infrastructure and loses transactional atomicity with order state.",
+          "Claiming is tied to Postgres transaction lifetimes, so a long-running claim holds its row lock the whole time. Queue depth also gets harder to observe, since locked rows are invisible to other workers' scans. A dedicated queue like SQS or RabbitMQ would decouple all this, but it adds infrastructure and gives up transactional atomicity with order state.",
         lesson:
-          "Verified zero duplicate assignments under concurrent Locust load after the fix. The database you already have is often the most correct queue you can get — reach for new infrastructure only when it buys something the transaction model can't.",
+          "After the fix, the same Locust run that used to reproduce the race showed zero duplicate assignments. The database you already run is often the most correct queue available. Reach for new infrastructure when it buys you something the transaction model can't.",
       },
       {
         title: "Kafka consumer groups over Redis Pub/Sub",
@@ -81,24 +81,24 @@ export const projects: Project[] = [
         decision:
           "Moved event distribution to Kafka topics with three independent consumer groups.",
         why:
-          "Kafka gives durable, replayable delivery with per-group offsets. An audit consumer that's offline for an hour resumes exactly where it left off; analytics can be rebuilt by replaying the topic from the beginning. Each group scales and fails independently.",
+          "Kafka gives durable, replayable delivery with per-group offsets. An audit consumer that's been offline for an hour resumes exactly where it left off, and analytics can be rebuilt by replaying the topic from the start. Each group scales and fails on its own.",
         tradeoffs:
-          "Kafka is operationally heavier than Redis Pub/Sub — brokers, partitions, and rebalancing to reason about. For ephemeral signals where loss is acceptable, Pub/Sub remains simpler; the split rule became 'facts go through Kafka, hints can go through Pub/Sub.'",
+          "Kafka is operationally heavier than Redis Pub/Sub. There are brokers, partitions, and rebalancing to reason about. For ephemeral signals where loss is fine, Pub/Sub stays simpler. The rule that came out of this: facts go through Kafka, hints can go through Pub/Sub.",
         lesson:
           "Choose delivery semantics first, technology second. 'Can any consumer afford to miss this message?' answers the Kafka-vs-Pub/Sub question in one sentence.",
       },
       {
         title: "Geohash cells for rider matching",
         context:
-          "Nearest-rider matching started as an O(n) distance scan over all active riders per order — fine at 100 riders, hopeless at 10,000.",
+          "Nearest-rider matching started as an O(n) distance scan across every active rider, run once per order. Fine at 100 riders. Hopeless at 10,000.",
         decision:
           "Index riders by geohash cell in Redis; match by looking up the order's cell and its eight neighbors, expanding outward only if empty.",
         why:
           "Cell lookup is O(1), and neighbor expansion bounds the search to the local area. Geohashes are plain strings, so Redis sets handle the index with no geospatial extension required.",
         tradeoffs:
-          "Geohash cells are rectangles, not circles — edge cases near cell boundaries need neighbor checks, and cell size is a tuning knob (too big → scans, too small → many expansions). PostGIS would be more precise but heavier for this access pattern.",
+          "Geohash cells are rectangles rather than circles, so boundaries need neighbor checks to stay correct. Cell size becomes a tuning knob too: too big and you're scanning again, too small and you expand constantly. PostGIS would be more precise, but it's heavier than this access pattern warrants.",
         lesson:
-          "Approximate spatial indexing is usually enough: the rider 50m away in the next cell matters, the rider 30km away never did.",
+          "Approximate spatial indexing is usually enough. The rider 50m away in the next cell matters. The rider 30km away never did.",
       },
       {
         title: "Priority queue with time-based aging",
@@ -107,9 +107,9 @@ export const projects: Project[] = [
         decision:
           "Heap-based scheduler where effective priority = base priority + age factor, so waiting orders climb the queue over time.",
         why:
-          "O(log n) insert/pop keeps scheduling cheap, and aging guarantees a bounded worst-case wait for every order — a fairness SLA instead of a fairness hope. Fairness-banded assignment also balances rider earnings within the delivery SLA.",
+          "O(log n) insert and pop keeps scheduling cheap. Aging then guarantees a bounded worst-case wait for every order, which turns fairness into something you can promise rather than hope for. Fairness-banded assignment also balances rider earnings inside the delivery SLA.",
         tradeoffs:
-          "The aging coefficient is a policy decision disguised as a constant: too aggressive and priority stops meaning anything, too weak and starvation returns. It needs monitoring, not just a value.",
+          "The aging coefficient is a policy decision disguised as a constant. Set it too aggressively and priority stops meaning anything; set it too weakly and starvation comes back. It needs monitoring, not just a value.",
         lesson:
           "Starvation is a design bug, not an edge case. Any priority system without aging is an eventual outage for somebody's order.",
       },
@@ -122,7 +122,7 @@ export const projects: Project[] = [
         why:
           "Idempotency turns retries from a correctness hazard into a no-op. The token bucket allows bursts while capping sustained rates, which matches real client behavior better than fixed windows.",
         tradeoffs:
-          "Idempotency storage needs TTL policy (how long is a retry still a retry?) and adds a Redis round-trip to the hot path — measured and accepted at well under a millisecond.",
+          "Idempotency storage needs a TTL policy, which raises an awkward question: how long is a retry still a retry? It also adds a Redis round-trip to the hot path. That cost was measured at well under a millisecond and accepted.",
         lesson:
           "Safe retries are a feature you design, not a property you inherit. Every mutating endpoint should answer 'what happens when this is called twice?'",
       },
@@ -137,18 +137,18 @@ export const projects: Project[] = [
     challenges: [
       "Diagnosing the double-dispatch race: it only appeared under concurrent load, and reproducing it reliably meant building a Locust scenario that hammered the claim path before it could be fixed with SKIP LOCKED.",
       "Kafka consumer rebalancing during rolling deploys briefly paused consumption; tuning session timeouts and using cooperative rebalancing kept event lag inside SLA.",
-      "Correlating a single order's journey across three replicas and three consumers required structured JSON logs with request-ID propagation end to end — observability had to be built, not bolted on.",
+      "Following one order's journey across three replicas and three consumers meant structured JSON logs carrying a request ID end to end. Observability had to be designed in rather than bolted on afterward.",
     ],
     lessons: [
-      "Concurrency bugs don't show up in unit tests — they show up under load. Load testing is a correctness tool, not just a performance tool.",
-      "Durable event streams (Kafka) and ephemeral signals (Pub/Sub) are different tools; picking by delivery semantics avoids both over- and under-engineering.",
-      "Production-readiness is a checklist you can build incrementally: rate limiting, idempotency, health checks, dashboards, correlated logs — each one small, together transformative.",
+      "Concurrency bugs don't show up in unit tests. They show up under load. That makes load testing a correctness tool, not just a performance one.",
+      "Durable event streams and ephemeral signals are different tools. Choosing between Kafka and Pub/Sub by delivery semantics avoids both over- and under-engineering.",
+      "Production-readiness is a checklist you can build incrementally: rate limiting, idempotency, health checks, dashboards, correlated logs. Each piece is small on its own. Together they change what the service can survive.",
     ],
     links: {
       github: "https://github.com/Shoryagg7/deliveriq",
     },
     highlights: [
-      "Zero duplicate assignments across 3 replicas — SKIP LOCKED two-phase claiming",
+      "Zero duplicate assignments across 3 replicas, using SKIP LOCKED two-phase claiming",
       "Kafka consumer groups: durable, replayable event delivery",
       "~123 RPS at p99 220 ms under Locust load",
       "Prometheus + Grafana observability, request-ID correlated logs",
@@ -159,20 +159,20 @@ export const projects: Project[] = [
     name: "SemanticCache",
     tagline: "LLM Caching & RAG Gateway",
     summary:
-      "An API gateway that semantically caches LLM responses — serving cached answers for similar (not just identical) queries — plus a FAISS-backed RAG pipeline, cutting redundant LLM calls, cost, and latency.",
+      "An API gateway that caches LLM responses by meaning rather than exact text, so a rephrased question reuses an answer it already paid for. A FAISS-backed RAG pipeline runs on the same embeddings, and the whole thing cuts redundant LLM calls, cost, and latency.",
     year: "2026",
     stack: ["Python", "FastAPI", "Redis", "FAISS", "LLM APIs", "Docker"],
     overview:
       "SemanticCache sits between applications and LLM providers. Every incoming query is embedded into a vector; if a sufficiently similar query has been answered before, the cached response is returned in milliseconds instead of paying for a fresh LLM round-trip. The same embedding infrastructure powers a retrieval-augmented generation pipeline that grounds answers in a document corpus.",
     problem:
-      "LLM APIs are slow and priced per token, yet real query streams are full of near-duplicates — 'how do I reset my password' and 'password reset steps?' pay for two identical LLM calls. Exact-match caching catches none of this because the strings differ. The gateway needed to recognize semantic equivalence, bound the cost of getting it wrong, and track spend per user before the bill became a surprise.",
+      "LLM APIs are slow and priced per token, yet real query streams are full of near-duplicates. 'How do I reset my password' and 'password reset steps?' pay for two separate calls that produce the same answer. Exact-match caching catches none of it, because the strings differ. So the gateway had to recognize semantic equivalence, bound the cost of getting that judgment wrong, and track spend per user before the bill turned into a surprise.",
     architectureNotes: [
-      "Gateway pattern: applications call SemanticCache with the same shape they'd call the LLM — caching, RAG, and cost controls are transparent to callers.",
+      "Gateway pattern: applications call SemanticCache with the same shape they'd use for the LLM itself, so caching, RAG, and cost controls stay transparent to callers.",
       "Embedding pipeline converts queries to vectors once; the same vectors serve cache lookup and RAG retrieval.",
       "FAISS performs approximate nearest-neighbor search over cached query vectors; a cosine-similarity threshold decides cache hit vs miss.",
       "Cache hits return in single-digit milliseconds from Redis; misses fall through to the LLM and the response is written back with its embedding.",
       "RAG path: document corpus chunked and embedded offline, retrieved by FAISS similarity at query time, injected into the LLM prompt for grounded answers.",
-      "Redis tracks per-user token spend and enforces per-user rate limits — cost control as a first-class API concern.",
+      "Redis tracks per-user token spend and enforces per-user rate limits, which makes cost control a first-class API concern instead of a monthly surprise.",
     ],
     diagram: {
       nodes: [
@@ -202,11 +202,11 @@ export const projects: Project[] = [
         decision:
           "Cosine similarity over normalized embeddings with a conservative threshold, tuned empirically against a labeled set of query pairs.",
         why:
-          "A wrong cached answer is worse than a slow correct one — the threshold errs toward misses. Evaluating on real paraphrase pairs made the precision/hit-rate trade-off measurable instead of vibes-based.",
+          "A wrong cached answer is worse than a slow correct one, so the threshold errs toward misses. Evaluating against real paraphrase pairs turned the precision and hit-rate trade-off into something measurable rather than a matter of taste.",
         tradeoffs:
-          "A single global threshold treats all query types the same; ambiguous short queries ('it doesn't work') embed close to many things and needed a minimum-length guard. Per-category thresholds would be finer-grained but harder to maintain.",
+          "A single global threshold treats every query type the same. Short ambiguous ones like 'it doesn't work' embed close to almost anything, so they needed a minimum-length guard. Per-category thresholds would be finer-grained but harder to maintain.",
         lesson:
-          "When a cache can be semantically wrong, treat threshold tuning like a model evaluation problem — with a dataset and metrics, not intuition.",
+          "When a cache can be semantically wrong, threshold tuning is a model evaluation problem. It wants a dataset and metrics, not intuition.",
       },
       {
         title: "FAISS in-process over a hosted vector database",
@@ -215,24 +215,24 @@ export const projects: Project[] = [
         decision:
           "FAISS as an in-process index inside the gateway, persisted to disk, rather than a hosted vector DB.",
         why:
-          "No network hop, no extra service to operate, and FAISS's approximate search is more than fast enough at this scale. The index rebuilds from Redis-persisted vectors on startup.",
+          "No network hop, no extra service to operate, and FAISS's approximate search is far quicker than it needs to be at this scale. The index rebuilds from Redis-persisted vectors on startup.",
         tradeoffs:
-          "In-process indexes don't share across replicas — horizontal scaling would need index replication or a move to a served vector store. Accepted consciously: solve the scaling problem when the corpus outgrows one machine, not before.",
+          "In-process indexes don't share across replicas, so scaling horizontally would mean replicating the index or moving to a served vector store. That was a deliberate deferral: solve the scaling problem when the corpus outgrows one machine, not before.",
         lesson:
-          "Embedding infrastructure has a genuine 'small scale' regime where the simple thing is also the fast thing. Know which regime you're in.",
+          "Embedding infrastructure has a real 'small scale' regime where the simple thing is also the fast thing. The trick is knowing which regime you're actually in.",
       },
       {
         title: "Per-user token budgets in Redis",
         context:
-          "LLM spend is unbounded by default — one runaway client loop can burn a month's budget in an afternoon.",
+          "LLM spend is unbounded by default. One runaway client loop can burn a month's budget in an afternoon.",
         decision:
           "Track token consumption per user in Redis counters and enforce both rate limits and spend ceilings at the gateway before the LLM is called.",
         why:
-          "The gateway is the single choke point where every request passes; enforcing budgets there means no client can bypass them. Counters double as a cost-attribution report.",
+          "The gateway is the one choke point every request passes through, so enforcing budgets there means no client can route around them. The counters double as a cost-attribution report.",
         tradeoffs:
-          "Pre-call enforcement estimates response tokens before knowing them, so budgets are enforced approximately and reconciled after the response. Exact enforcement would require post-hoc clawback semantics that punish users for the estimator's errors.",
+          "Enforcing before the call means estimating response tokens before you know them, so budgets are approximate and get reconciled once the response lands. Exact enforcement would need clawback semantics that punish users for the estimator's mistakes.",
         lesson:
-          "Cost is a runtime resource like memory or connections — meter it, cap it, and surface it, or it will surprise you.",
+          "Cost is a runtime resource, no different from memory or connections. Meter it, cap it, surface it. Otherwise it surprises you.",
       },
     ],
     performance: [
@@ -242,14 +242,14 @@ export const projects: Project[] = [
       { label: "Cost tracking", value: "per-user", detail: "token budgets in Redis" },
     ],
     challenges: [
-      "Embedding drift: changing the embedding model invalidates every stored vector — versioning the index by model became necessary the first time the model was upgraded.",
-      "Cache invalidation for RAG: when corpus documents update, cached answers grounded in stale chunks must be evicted; tying cache entries to source-document versions solved it.",
-      "Distinguishing 'similar query' from 'same query with different intent' — negation ('how to enable X' vs 'how to disable X') embeds deceptively close and motivated the conservative threshold.",
+      "Embedding drift: swapping the embedding model invalidates every stored vector. Versioning the index by model became necessary the first time that model was upgraded.",
+      "Cache invalidation for RAG: when corpus documents change, any cached answer grounded in a stale chunk has to be evicted. Tying cache entries to source-document versions solved it.",
+      "Telling 'similar query' apart from 'same query, opposite intent'. Negation is the hard case, because 'how to enable X' and 'how to disable X' embed deceptively close. That's most of why the threshold ended up conservative.",
     ],
     lessons: [
-      "Semantic caching is a precision/recall system wearing a cache's clothes — evaluate it like one.",
-      "The gateway pattern concentrates cross-cutting concerns (caching, budgets, rate limits) where they can't be bypassed.",
-      "Cost optimization for LLM systems is an architecture property, not a prompt-engineering afterthought.",
+      "Semantic caching is a precision and recall system wearing a cache's clothes. It should be evaluated like one.",
+      "The gateway pattern concentrates cross-cutting concerns like caching, budgets, and rate limits somewhere they can't be bypassed.",
+      "Cost optimization for LLM systems is a property of the architecture, not a prompt-engineering afterthought.",
     ],
     links: {
       github: "https://github.com/Shoryagg7/semanticcache",
@@ -257,7 +257,7 @@ export const projects: Project[] = [
     highlights: [
       "Semantic cache: similar queries hit, not just identical strings",
       "FAISS ANN search + embedding pipeline shared with RAG",
-      "Per-user token budgets — LLM spend capped at the gateway",
+      "Per-user token budgets, capping LLM spend at the gateway",
       "Milliseconds on hit vs seconds on LLM round-trip",
     ],
   },

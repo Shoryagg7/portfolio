@@ -103,7 +103,7 @@ export function CommandPalette({ open, setOpen, posts }: CommandPaletteProps) {
       />
       <Command.List className="max-h-[min(60vh,380px)] overflow-y-auto p-2 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-faint">
         <Command.Empty className="px-3 py-8 text-center text-sm text-faint">
-          No results — signal lost in transit.
+          No results. Signal lost in transit.
         </Command.Empty>
 
         <Command.Group heading="Navigate">

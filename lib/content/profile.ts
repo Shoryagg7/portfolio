@@ -6,7 +6,7 @@ export const profile: Profile = {
   role: "Backend & Distributed Systems Engineer",
   tagline: "I build reliable distributed systems.",
   intro:
-    "Final-year Computer Science undergraduate at Thapar Institute. I design and build scalable, low-latency backend services — event-driven architectures, careful concurrency, and systems that stay up when things go wrong.",
+    "Final-year Computer Science undergraduate at Thapar Institute. I build backend services that stay fast under load and keep working when something breaks. Mostly event-driven architectures, and the careful concurrency work that sits underneath them.",
   location: "India",
   university: "Thapar Institute of Engineering and Technology",
   degree: "B.E. Computer Science Engineering",

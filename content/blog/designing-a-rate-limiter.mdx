@@ -1,6 +1,6 @@
 ---
 title: "Designing a Rate Limiter: Token Bucket in Redis, Correctly"
-description: "Fixed windows lie at the edges, sliding logs don't scale — why the token bucket wins, and the atomicity bug most Redis implementations ship with."
+description: "Fixed windows lie at the edges and sliding logs don't scale. Why the token bucket wins, and the atomicity bug most Redis implementations ship with."
 date: "2026-03-08"
 tags: ["System Design", "Redis", "Backend"]
 ---
@@ -11,19 +11,19 @@ Rate limiting looks like a solved problem until you implement it across multiple
 
 **Fixed window** (`INCR` a counter per minute) has an edge problem: 100 requests at 11:59:59 and 100 more at 12:00:01 is 200 requests in two seconds, all "within limit." The counter resets exactly when it shouldn't.
 
-**Sliding window log** (store every request timestamp in a sorted set) is precise but stores one entry per request — memory scales with traffic, which is exactly the resource you're trying to protect.
+**Sliding window log** (store every request timestamp in a sorted set) is precise, but it stores one entry per request. Memory then scales with traffic, which is exactly the resource you were trying to protect.
 
 ## Token bucket
 
-Each client gets a bucket with `capacity` tokens refilling at `rate` tokens/second. A request costs one token; empty bucket → 429. The shape this produces matches real clients: bursts are fine, sustained abuse is not.
+Each client gets a bucket with `capacity` tokens refilling at `rate` tokens/second. A request costs one token, and an empty bucket means 429. The shape this produces matches how real clients behave: bursts are fine, sustained abuse is not.
 
-The state is two numbers per client — token count and last-refill timestamp — regardless of traffic volume.
+The state is two numbers per client, the token count and the last-refill timestamp, no matter how much traffic flows through.
 
 ## The atomicity bug
 
 The tempting implementation reads the bucket, computes the refill in application code, and writes it back. Two replicas doing this concurrently both read "1 token left" and both allow the request. Your limiter now has the same race as an unguarded job queue.
 
-The fix is doing read-refill-decide-write as one atomic unit — in Redis, a Lua script:
+The fix is doing read-refill-decide-write as one atomic unit. In Redis, that means a Lua script:
 
 ```lua
 local tokens = tonumber(redis.call('HGET', KEYS[1], 'tokens') or ARGV[1])
@@ -45,7 +45,7 @@ Redis executes scripts serially, so the check-and-decrement cannot interleave. T
 
 - **Fail open or closed?** If Redis is down, do you reject everyone (safe for the backend, terrible for users) or admit everyone (the reverse)? Decide explicitly; don't let an exception handler decide for you.
 - **Tell clients the truth**: return `429` with `Retry-After` and `X-RateLimit-Remaining`. Well-behaved clients will back off if you tell them how.
-- **Limit by the right key.** Per-IP punishes users behind NAT; per-API-key is what you usually mean.
+- **Limit by the right key.** Per-IP punishes users behind NAT. Per-API-key is usually what you meant.
 - **TTL the buckets**, or idle clients leak memory forever.
 
 A rate limiter is a tiny distributed system: shared state, concurrent writers, partial failure. Treat it with the same care as the service it protects.

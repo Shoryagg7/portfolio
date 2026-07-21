@@ -11,7 +11,7 @@ import { getAllPosts } from "@/lib/blog";
 export const metadata: Metadata = {
   title: "Blog",
   description:
-    "Technical notes and system design writeups — distributed systems, databases, and competitive programming.",
+    "Technical notes and system design writeups on distributed systems, databases, and competitive programming.",
 };
 
 export default function BlogPage() {
