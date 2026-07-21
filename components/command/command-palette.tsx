@@ -94,8 +94,14 @@ export function CommandPalette({ open, setOpen, posts }: CommandPaletteProps) {
       onOpenChange={setOpen}
       label="Command palette"
       loop
-      className="fixed left-1/2 top-[18%] z-[100] w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-2xl border border-edge-strong bg-elevated/95 shadow-2xl shadow-black/60 backdrop-blur-xl"
-      overlayClassName="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
+      /*
+        Panel styling belongs on contentClassName, not className. cmdk forwards
+        className to the inner Command div and contentClassName to Radix's
+        Dialog.Content, and only the latter carries the data-state attribute the
+        open/close animations key off.
+      */
+      contentClassName="palette-panel fixed left-1/2 top-[18%] z-[100] w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-2xl border border-edge-strong bg-elevated/95 shadow-2xl shadow-black/60 backdrop-blur-xl"
+      overlayClassName="palette-veil fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
     >
       <Command.Input
         placeholder="Type a command or search…"

@@ -173,3 +173,71 @@ body {
     transform: none;
   }
 }
+
+/*
+  Command palette enter/exit.
+
+  The palette previously appeared and vanished with no animation at all. Radix
+  (under cmdk) stamps data-state on the overlay and content and keeps the node
+  mounted while a CSS animation runs, so the close animation works too.
+
+  Only opacity and transform are animated. Tailwind v4 centres the dialog with
+  the independent `translate` property, so `transform` here composes with it
+  rather than overwriting the centring.
+*/
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+@keyframes palette-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98) translateY(-6px);
+  }
+}
+@keyframes veil-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes veil-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.palette-panel[data-state="open"] {
+  animation: palette-in 260ms var(--ease-out-expo);
+}
+.palette-panel[data-state="closed"] {
+  animation: palette-out 160ms var(--ease-out-soft);
+}
+.palette-veil[data-state="open"] {
+  animation: veil-in 220ms var(--ease-out-soft);
+}
+.palette-veil[data-state="closed"] {
+  animation: veil-out 160ms var(--ease-out-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .palette-panel[data-state],
+  .palette-veil[data-state] {
+    animation-duration: 1ms;
+  }
+}

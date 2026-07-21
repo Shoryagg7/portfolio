@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { SectionHeading } from "./section-heading";
 
 interface SectionProps {
   id: string;
@@ -37,23 +38,7 @@ export function Section({
                 "md:flex md:items-end md:justify-between md:gap-12",
             )}
           >
-            <div className="max-w-3xl">
-              {kicker && (
-                <p className="mb-4 font-mono text-xs tracking-[0.25em] text-accent uppercase">
-                  {kicker}
-                </p>
-              )}
-              {title && (
-                <h2 className="font-display text-4xl leading-[1.05] font-semibold tracking-tight text-balance text-foreground md:text-6xl">
-                  {title}
-                </h2>
-              )}
-              {lead && (
-                <p className="mt-6 max-w-2xl text-base leading-relaxed text-muted md:text-lg">
-                  {lead}
-                </p>
-              )}
-            </div>
+            <SectionHeading kicker={kicker} title={title} lead={lead} />
             {aside && (
               <div className="mt-8 shrink-0 md:mt-0 md:pb-2 md:text-right">{aside}</div>
             )}

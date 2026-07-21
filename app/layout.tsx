@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CommandPaletteProvider } from "@/components/command/command-palette-provider";
+import { CosmicBackdrop } from "@/components/space/cosmic-backdrop";
 import { profile } from "@/lib/content/profile";
 import { getAllPosts } from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
@@ -78,6 +79,7 @@ export default function RootLayout({
             __html: `try{var a=localStorage.getItem("accent");if(a&&a!=="blue")document.documentElement.dataset.accent=a}catch(e){}`,
           }}
         />
+        <CosmicBackdrop />
         <CommandPaletteProvider posts={posts}>{children}</CommandPaletteProvider>
       </body>
     </html>
