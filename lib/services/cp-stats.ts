@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { PlatformStats } from "@/types";
 
 /*
@@ -259,11 +260,16 @@ async function fetchCodeChef(): Promise<PlatformStats> {
   }
 }
 
-export async function getAllPlatformStats(): Promise<PlatformStats[]> {
+/*
+  Memoized per render pass. Both the hero's orbital bodies and the CP dashboard
+  read these stats, and without cache() that is two passes over three platforms
+  on every build.
+*/
+export const getAllPlatformStats = cache(async (): Promise<PlatformStats[]> => {
   const [codeforces, codechef, leetcode] = await Promise.all([
     fetchCodeforces(),
     fetchCodeChef(),
     fetchLeetCode(),
   ]);
   return [codeforces, codechef, leetcode];
-}
+});

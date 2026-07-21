@@ -10,16 +10,19 @@ import { CPDashboard } from "@/components/sections/cp-dashboard";
 import { BlogPreview } from "@/components/sections/blog-preview";
 import { Contact } from "@/components/sections/contact";
 import { getAllPosts } from "@/lib/blog";
+import { getAllPlatformStats } from "@/lib/services/cp-stats";
 
-export default function Home() {
+export default async function Home() {
   const posts = getAllPosts();
+  // Memoized, so the CP dashboard below reuses this rather than refetching.
+  const cpStats = await getAllPlatformStats();
 
   return (
     <>
       <ScrollProgress />
       <Navbar />
       <main>
-        <Hero />
+        <Hero cpStats={cpStats} />
         <About />
         <Philosophy />
         <Skills />

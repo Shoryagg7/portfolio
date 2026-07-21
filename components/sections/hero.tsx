@@ -3,16 +3,23 @@
 import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Download } from "lucide-react";
 import { Starfield } from "@/components/space/starfield";
-import { OrbitRing } from "@/components/space/orbit-ring";
+import { SolarSystem } from "@/components/space/solar-system";
 import { Magnetic } from "@/components/ui/magnetic-button";
 import { Button } from "@/components/ui/button";
 import { StatCounter } from "@/components/ui/stat-counter";
 import { profile, heroStats } from "@/lib/content/profile";
+import { projects } from "@/lib/content/projects";
+import type { PlatformStats } from "@/types";
 
 const ease: [number, number, number, number] = [0.21, 0.47, 0.32, 0.98];
 
-export function Hero() {
+export function Hero({ cpStats }: { cpStats: PlatformStats[] }) {
   const reduce = useReducedMotion();
+  const orbitProjects = projects.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    tagline: p.tagline,
+  }));
   const fade = (delay: number) => ({
     initial: reduce ? { opacity: 0 } : { opacity: 0, y: 20, filter: "blur(8px)" },
     animate: { opacity: 1, y: 0, filter: "blur(0px)" },
@@ -32,10 +39,17 @@ export function Hero() {
             "radial-gradient(ellipse 60% 45% at 50% 8%, var(--accent-dim), transparent 65%)",
         }}
       />
-      <OrbitRing size={620} duration={70} className="-right-64 -top-64 opacity-60 max-md:hidden" />
-      <OrbitRing size={420} duration={50} reverse className="-right-40 -top-40 opacity-40 max-md:hidden" />
+      {/*
+        On desktop the system moves into the right third, where it has room to be
+        the subject. On mobile there is no such room, so it drops below the
+        headline and dims to a texture: legibility wins, but unlike the old orbit
+        rings it is still actually there rather than hidden outright.
+      */}
+      <div className="absolute inset-x-0 top-[28%] bottom-0 opacity-40 md:inset-y-0 md:left-[32%] md:opacity-100">
+        <SolarSystem projects={orbitProjects} cpStats={cpStats} />
+      </div>
 
-      <div className="relative mx-auto w-full max-w-6xl px-5 pb-20 pt-32 md:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20 pt-32 md:px-8">
         <motion.p
           {...fade(0.05)}
           className="mb-5 inline-flex items-center gap-2 rounded-full border border-edge bg-raised/70 px-3.5 py-1.5 font-mono text-xs text-muted backdrop-blur"
