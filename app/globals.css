@@ -175,6 +175,148 @@ body {
 }
 
 /*
+  First-visit intro veil.
+
+  Timing lives here rather than in JS so the sequence starts at first paint
+  instead of waiting for hydration. Only opacity, transform and filter are
+  animated, so the whole thing stays on the compositor.
+
+  The hero text underneath is painted the entire time; the veil sits over it.
+  That matters because it keeps the DOM heading as the LCP element instead of
+  pushing largest-paint out behind an overlay.
+*/
+#intro-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--bg-deep);
+  animation: intro-veil 1.85s var(--ease-out-expo) forwards;
+}
+
+/* Repeat visit, or reduced motion: never rendered at all. */
+:root[data-intro="off"] #intro-veil,
+:root[data-intro="done"] #intro-veil {
+  display: none;
+}
+
+/* Skipped by input: drop the keyframes and fade out from wherever it was. */
+:root[data-intro="dismiss"] #intro-veil {
+  animation: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 280ms var(--ease-out-soft),
+    visibility 0s 280ms;
+}
+
+@keyframes intro-veil {
+  0%,
+  58% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.intro-inner {
+  text-align: center;
+  padding: 0 1.25rem;
+}
+
+.intro-name {
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-size: clamp(2.5rem, 9vw, 5.5rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--foreground);
+  animation: intro-resolve 1.5s var(--ease-out-expo) forwards;
+}
+.intro-name span {
+  color: var(--faint);
+}
+
+.intro-rule {
+  display: block;
+  height: 1px;
+  margin: 1.5rem auto 0;
+  width: min(280px, 60vw);
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  transform-origin: center;
+  animation: intro-rule 1.4s var(--ease-out-expo) 0.35s backwards;
+}
+
+.intro-role {
+  margin-top: 1.25rem;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.8125rem;
+  color: var(--accent);
+  animation: intro-fade 1.2s var(--ease-out-soft) 0.55s backwards;
+}
+
+.intro-hint {
+  position: absolute;
+  bottom: 2.5rem;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.75rem;
+  color: var(--faint);
+  animation: intro-fade 1s var(--ease-out-soft) 1s backwards;
+}
+
+@keyframes intro-resolve {
+  0% {
+    opacity: 0;
+    filter: blur(18px);
+    transform: translateY(14px) scale(0.985);
+  }
+  55% {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: none;
+  }
+}
+
+@keyframes intro-rule {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes intro-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/*
+  Belt and braces. The inline script already prevents the veil from rendering
+  under reduced motion, but if it ever fails to run the veil must not linger.
+*/
+@media (prefers-reduced-motion: reduce) {
+  #intro-veil {
+    display: none;
+  }
+}
+
+/*
   Command palette enter/exit.
 
   The palette previously appeared and vanished with no animation at all. Radix

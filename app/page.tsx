@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/layout/navbar";
+import { IntroVeil } from "@/components/intro/intro-veil";
 import { Footer } from "@/components/layout/footer";
 import { ScrollProgress } from "@/components/layout/scroll-progress";
 import { Hero } from "@/components/sections/hero";
@@ -19,6 +20,7 @@ export default async function Home() {
 
   return (
     <>
+      <IntroVeil />
       <ScrollProgress />
       <Navbar />
       <main>
