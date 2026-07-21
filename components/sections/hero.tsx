@@ -40,16 +40,21 @@ export function Hero({ cpStats }: { cpStats: PlatformStats[] }) {
         }}
       />
       {/*
-        On desktop the system moves into the right third, where it has room to be
-        the subject. On mobile there is no such room, so it drops below the
-        headline and dims to a texture: legibility wins, but unlike the old orbit
-        rings it is still actually there rather than hidden outright.
+        Two genuinely different placements rather than one layout dimmed down.
+
+        Desktop has room beside the copy, so the system takes the right third at
+        full strength. Mobile has no such room: laying it behind the copy meant
+        either unreadable text or an opacity so low the scene was pointless. So
+        it gets its own band under the navbar and above the headline, at full
+        opacity, overlapping nothing. It's the first thing you see, and the copy
+        starts below it.
       */}
-      <div className="absolute inset-x-0 top-[28%] bottom-0 opacity-40 md:inset-y-0 md:left-[32%] md:opacity-100">
+      <div className="absolute inset-x-0 top-16 h-[300px] md:inset-y-0 md:top-0 md:left-[32%] md:h-auto">
         <SolarSystem projects={orbitProjects} cpStats={cpStats} />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-20 pt-32 md:px-8">
+      {/* pt clears the mobile scene band; desktop keeps the original offset. */}
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pt-[356px] pb-20 md:px-8 md:pt-32">
         <motion.p
           {...fade(0.05)}
           className="mb-5 inline-flex items-center gap-2 rounded-full border border-edge bg-raised/70 px-3.5 py-1.5 font-mono text-xs text-muted backdrop-blur"
