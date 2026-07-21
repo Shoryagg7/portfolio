@@ -5,13 +5,20 @@
   Accent is swappable at runtime via [data-accent] (command palette / theme switcher).
 */
 :root {
+  /*
+    Elevation ladder. Contrast ratio is a poor guide this close to black, so these
+    are spaced by perceptual lightness instead: L* 1.5 / 6.5 / 11. Each step is a
+    ~4.5 L* jump, roughly 3x the separation the first pass shipped with, which is
+    what lets a card read as raised without leaning on its border to do the work.
+  */
   --bg-deep: #05050a;
-  --bg-raised: #090b13;
-  --bg-elevated: #0c111d;
+  --bg-raised: #101420;
+  --bg-elevated: #181d2c;
 
   --foreground: #e6e8ef;
   --muted: #9aa1b2;
-  --faint: #5c6374;
+  /* 4.8:1 on --bg-elevated, the lightest surface it lands on. Clears AA everywhere. */
+  --faint: #82899b;
 
   --border: rgba(148, 163, 200, 0.1);
   --border-strong: rgba(148, 163, 200, 0.18);
@@ -20,6 +27,29 @@
   --accent-bright: #7caaff;
   --accent-dim: rgba(79, 141, 255, 0.12);
   --accent-glow: rgba(79, 141, 255, 0.35);
+
+  /*
+    On a near-black surface a black shadow is invisible, so elevation is carried by
+    the inset top highlight catching the light. The ambient shadows underneath only
+    stop the card from bleeding into whatever sits behind it.
+  */
+  --shadow-card:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    0 8px 24px -10px rgba(0, 0, 0, 0.65);
+  --shadow-lift:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.45),
+    0 24px 56px -16px rgba(0, 0, 0, 0.75);
+
+  /* Deep-space wash. Consumed by the cosmic backdrop and section gradients. */
+  --nebula-core: rgba(79, 141, 255, 0.14);
+  --nebula-far: rgba(139, 124, 248, 0.1);
+  --nebula-cold: rgba(34, 200, 221, 0.08);
+
+  /* Motion. Single source of truth so JS and CSS animations agree. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 :root[data-accent="cyan"] {
@@ -27,6 +57,9 @@
   --accent-bright: #67dceb;
   --accent-dim: rgba(34, 200, 221, 0.12);
   --accent-glow: rgba(34, 200, 221, 0.35);
+  --nebula-core: rgba(34, 200, 221, 0.14);
+  --nebula-far: rgba(79, 141, 255, 0.1);
+  --nebula-cold: rgba(139, 124, 248, 0.08);
 }
 
 :root[data-accent="violet"] {
@@ -34,6 +67,9 @@
   --accent-bright: #ab9ffa;
   --accent-dim: rgba(139, 124, 248, 0.12);
   --accent-glow: rgba(139, 124, 248, 0.35);
+  --nebula-core: rgba(139, 124, 248, 0.14);
+  --nebula-far: rgba(79, 141, 255, 0.1);
+  --nebula-cold: rgba(34, 200, 221, 0.08);
 }
 
 @theme inline {
@@ -48,6 +84,12 @@
   --color-accent: var(--accent);
   --color-accent-bright: var(--accent-bright);
   --color-accent-dim: var(--accent-dim);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-lift: var(--shadow-lift);
+
+  --ease-out-expo: var(--ease-out-expo);
+  --ease-out-soft: var(--ease-out-soft);
 
   --font-sans: var(--font-inter);
   --font-display: var(--font-space-grotesk);
@@ -100,16 +142,34 @@ body {
   mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
 }
 
-/* Utility: accent glow ring on hover, used by GlowCard */
+/*
+  Utility: resting elevation + accent lift on hover, used by GlowCard.
+  The first pass declared a transform transition but never set a transform on
+  :hover, so the lift it promised never happened. It does now.
+*/
 .glow-hover {
+  box-shadow: var(--shadow-card);
   transition:
-    border-color 200ms ease,
-    box-shadow 300ms ease,
-    transform 200ms ease;
+    border-color 200ms var(--ease-out-soft),
+    box-shadow 320ms var(--ease-out-soft),
+    transform 320ms var(--ease-out-expo);
+  will-change: transform;
 }
 .glow-hover:hover {
   border-color: var(--border-strong);
+  transform: translateY(-3px);
   box-shadow:
+    var(--shadow-lift),
     0 0 0 1px var(--accent-dim),
-    0 8px 40px -12px var(--accent-glow);
+    0 16px 48px -16px var(--accent-glow);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-hover {
+    transition: border-color 200ms ease;
+    will-change: auto;
+  }
+  .glow-hover:hover {
+    transform: none;
+  }
 }

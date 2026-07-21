@@ -12,12 +12,24 @@ export function BlogPreview({ posts }: { posts: PostMeta[] }) {
       kicker="06 · writing"
       title="Can I explain hard ideas?"
       lead="Short technical notes and longer system design breakdowns, kept in one place and tagged by topic."
+      aside={
+        <Link
+          href="/blog"
+          className="group inline-flex items-center gap-2 font-mono text-xs text-faint transition-colors hover:text-accent"
+        >
+          <span className="text-foreground">{posts.length}</span> posts
+          <ArrowRight
+            aria-hidden
+            className="size-3.5 transition-transform group-hover:translate-x-1"
+          />
+        </Link>
+      }
     >
-      <Stagger className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <Stagger className="grid gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
         {posts.slice(0, 3).map((post) => (
           <StaggerItem key={post.slug}>
-            <article className="glow-hover group relative flex h-full flex-col rounded-xl border border-edge bg-raised/80 p-6">
-              <div className="flex items-center gap-2.5 font-mono text-[11px] text-faint">
+            <article className="glow-hover group relative flex h-full flex-col rounded-2xl border border-edge bg-raised/85 p-6 md:p-8">
+              <div className="flex items-center gap-2.5 font-mono text-xs text-faint">
                 <time dateTime={post.date}>
                   {new Date(post.date).toLocaleDateString("en-US", {
                     month: "short",

@@ -17,20 +17,20 @@ function StatCell({ label, value, suffix = "" }: { label: string; value: number 
           <StatCounter value={value} suffix={suffix} decimals={Number.isInteger(value) ? 0 : 1} />
         )}
       </p>
-      <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-faint">{label}</p>
+      <p className="mt-0.5 font-mono text-xs uppercase tracking-wider text-faint">{label}</p>
     </div>
   );
 }
 
 function PlatformCard({ stats }: { stats: PlatformStats }) {
   return (
-    <article className="glow-hover flex h-full flex-col rounded-xl border border-edge bg-raised/80 p-6">
+    <article className="glow-hover flex h-full flex-col rounded-2xl border border-edge bg-raised/85 p-6 md:p-8">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="font-display text-lg font-medium text-foreground">{stats.title}</h3>
           <p className="font-mono text-xs text-faint">@{stats.handle}</p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-elevated px-2.5 py-1 font-mono text-[10px] text-muted">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-edge bg-elevated px-2.5 py-1 font-mono text-xs text-muted">
           {stats.live && (
             <Radio aria-hidden className="size-3 text-emerald-400" />
           )}
@@ -73,8 +73,15 @@ export async function CPDashboard() {
       kicker="05 · competitive programming"
       title="Can I solve hard problems?"
       lead="2000+ problems solved across Codeforces, CodeChef, LeetCode, and GeeksforGeeks. Codeforces Expert, earned one contest at a time."
+      aside={
+        <p className="font-mono text-xs text-faint">
+          <span className="text-foreground">{allStats.filter((s) => s.live).length}</span>
+          <span className="mx-1.5 text-edge-strong">/</span>
+          <span>{allStats.length} platforms live</span>
+        </p>
+      }
     >
-      <Stagger className="grid gap-4 md:grid-cols-3">
+      <Stagger className="grid gap-6 md:grid-cols-3 md:gap-8">
         {allStats.map((stats) => (
           <StaggerItem key={stats.platform}>
             <PlatformCard stats={stats} />
@@ -82,11 +89,11 @@ export async function CPDashboard() {
         ))}
       </Stagger>
 
-      <Reveal delay={0.15} className="mt-4">
+      <Reveal delay={0.15} className="mt-6 md:mt-8">
         <RatingTrajectory stats={codeforces} />
       </Reveal>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-6 md:mt-8 md:gap-8 lg:grid-cols-2">
         <Reveal delay={0.2}>
           <RatingTrajectory stats={leetcode} />
         </Reveal>

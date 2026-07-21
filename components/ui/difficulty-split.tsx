@@ -18,10 +18,10 @@ export function DifficultySplit({ split, total }: { split: Split; total: number 
   const sum = split.easy + split.medium + split.hard || 1;
 
   return (
-    <div className="h-full rounded-xl border border-edge bg-raised/80 p-6">
+    <div className="h-full rounded-2xl border border-edge bg-raised/85 p-6 md:p-8">
       <div className="mb-5 flex items-baseline justify-between gap-3">
         <h3 className="font-display text-sm font-medium text-foreground">Solve distribution</h3>
-        <span className="font-mono text-[10px] text-faint">
+        <span className="font-mono text-xs text-faint">
           LeetCode{total ? ` · ${total} solved` : ""}
         </span>
       </div>
@@ -45,7 +45,7 @@ export function DifficultySplit({ split, total }: { split: Split; total: number 
       <dl className="mt-5 grid grid-cols-3 gap-3">
         {tiers.map((tier) => (
           <div key={tier.key}>
-            <dt className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-faint">
+            <dt className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-faint">
               <span
                 aria-hidden
                 className="size-1.5 rounded-full"
@@ -55,7 +55,7 @@ export function DifficultySplit({ split, total }: { split: Split; total: number 
             </dt>
             <dd className="mt-1 font-display text-lg font-semibold tabular-nums text-foreground">
               {split[tier.key]}
-              <span className="ml-1 font-mono text-[10px] font-normal text-faint">
+              <span className="ml-1 font-mono text-xs font-normal text-faint">
                 {Math.round((split[tier.key] / sum) * 100)}%
               </span>
             </dd>

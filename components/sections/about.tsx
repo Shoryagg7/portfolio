@@ -22,8 +22,8 @@ export function About() {
       title="Why distributed systems?"
       lead="Because the interesting failures only start when there's more than one machine."
     >
-      <div className="grid gap-10 lg:grid-cols-5">
-        <Reveal className="space-y-5 text-base leading-relaxed text-muted lg:col-span-3">
+      <div className="grid gap-10 lg:grid-cols-5 lg:gap-12">
+        <Reveal className="space-y-5 text-base leading-relaxed text-muted lg:col-span-3 lg:text-lg">
           <p>
             I&apos;m a final-year Computer Science undergraduate at{" "}
             <span className="text-foreground">{profile.university}</span>, and most of what I
@@ -50,13 +50,13 @@ export function About() {
           </div>
         </Reveal>
 
-        <div className="space-y-4 lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2">
           <Reveal delay={0.1}>
             <GlowCard>
               <div className="flex items-start gap-3">
                 <GraduationCap aria-hidden className="mt-0.5 size-5 text-accent" />
                 <div>
-                  <h3 className="font-medium text-foreground">{profile.university}</h3>
+                  <h3 className="font-display text-lg font-medium text-foreground">{profile.university}</h3>
                   <p className="mt-1 text-sm text-muted">{profile.degree}</p>
                   <p className="mt-2 font-mono text-xs text-faint">
                     {profile.years} · CGPA {profile.gpa}
@@ -73,7 +73,7 @@ export function About() {
               <div className="flex items-start gap-3">
                 <Sparkles aria-hidden className="mt-0.5 size-5 text-accent" />
                 <div>
-                  <h3 className="font-medium text-foreground">Currently exploring</h3>
+                  <h3 className="font-display text-lg font-medium text-foreground">Currently exploring</h3>
                   <ul className="mt-2 space-y-1.5">
                     {currentlyExploring.map((item) => (
                       <li key={item} className="flex items-center gap-2 text-sm text-muted">
@@ -91,7 +91,7 @@ export function About() {
               <div className="flex items-start gap-3">
                 <MapPin aria-hidden className="mt-0.5 size-5 text-accent" />
                 <div>
-                  <h3 className="font-medium text-foreground">Beyond the terminal</h3>
+                  <h3 className="font-display text-lg font-medium text-foreground">Beyond the terminal</h3>
                   <p className="mt-1 text-sm leading-relaxed text-muted">
                     Vice Head of Photography at FAPS Society, state-level footballer, and a
                     long jumper on the college athletics team.

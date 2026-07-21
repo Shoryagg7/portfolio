@@ -86,7 +86,7 @@ export function Hero() {
         >
           {heroStats.map((stat) => (
             <div key={stat.label} className="px-4 py-5 first:pl-0 md:px-6">
-              <dt className="order-last mt-1 font-mono text-[11px] text-faint">{stat.note}</dt>
+              <dt className="order-last mt-1 font-mono text-xs text-faint">{stat.note}</dt>
               <dd className="font-display text-2xl font-semibold text-foreground md:text-3xl">
                 <StatCounter
                   value={stat.value}

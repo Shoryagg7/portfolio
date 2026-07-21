@@ -94,14 +94,14 @@ export function CommandPalette({ open, setOpen, posts }: CommandPaletteProps) {
       onOpenChange={setOpen}
       label="Command palette"
       loop
-      className="fixed left-1/2 top-[18%] z-[100] w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-xl border border-edge-strong bg-elevated/95 shadow-2xl shadow-black/60 backdrop-blur-xl"
+      className="fixed left-1/2 top-[18%] z-[100] w-[calc(100vw-2rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-2xl border border-edge-strong bg-elevated/95 shadow-2xl shadow-black/60 backdrop-blur-xl"
       overlayClassName="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm"
     >
       <Command.Input
         placeholder="Type a command or search…"
         className="w-full border-b border-edge bg-transparent px-4 py-3.5 font-mono text-sm text-foreground outline-none placeholder:text-faint"
       />
-      <Command.List className="max-h-[min(60vh,380px)] overflow-y-auto p-2 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-[10px] [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-faint">
+      <Command.List className="max-h-[min(60vh,380px)] overflow-y-auto p-2 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:font-mono [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-widest [&_[cmdk-group-heading]]:text-faint">
         <Command.Empty className="px-3 py-8 text-center text-sm text-faint">
           No results. Signal lost in transit.
         </Command.Empty>
@@ -193,7 +193,7 @@ export function CommandPalette({ open, setOpen, posts }: CommandPaletteProps) {
         </Command.Group>
       </Command.List>
 
-      <div className="flex items-center gap-3 border-t border-edge px-4 py-2 font-mono text-[10px] text-faint">
+      <div className="flex items-center gap-3 border-t border-edge px-4 py-2 font-mono text-xs text-faint">
         <span>↑↓ navigate</span>
         <span>↵ select</span>
         <span>esc close</span>

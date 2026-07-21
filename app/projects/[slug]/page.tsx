@@ -162,13 +162,13 @@ export default async function ProjectPage({
             {project.performance.map((m) => (
               <div
                 key={m.label}
-                className="rounded-xl border border-edge bg-raised/80 px-4 py-5 text-center"
+                className="rounded-2xl border border-edge bg-raised/85 px-4 py-5 text-center"
               >
                 <p className="font-mono text-xl font-semibold text-accent-bright md:text-2xl">
                   {m.value}
                 </p>
                 <p className="mt-1 text-xs font-medium text-foreground">{m.label}</p>
-                {m.detail && <p className="mt-1 text-[11px] text-faint">{m.detail}</p>}
+                {m.detail && <p className="mt-1 text-xs text-faint">{m.detail}</p>}
               </div>
             ))}
           </div>
@@ -255,7 +255,7 @@ function DecisionRow({
   return (
     <div className="grid gap-1 md:grid-cols-[110px_1fr] md:gap-4">
       <dt
-        className={`font-mono text-[11px] uppercase tracking-wider ${
+        className={`font-mono text-xs uppercase tracking-wider ${
           accent ? "text-accent" : "text-faint"
         }`}
       >

@@ -41,7 +41,7 @@ export default function BlogPage() {
         <Stagger className="mt-12 space-y-4">
           {posts.map((post) => (
             <StaggerItem key={post.slug}>
-              <article className="glow-hover group relative rounded-xl border border-edge bg-raised/80 p-6">
+              <article className="glow-hover group relative rounded-2xl border border-edge bg-raised/85 p-6 md:p-8">
                 <div className="flex items-center gap-3 font-mono text-xs text-faint">
                   <time dateTime={post.date}>
                     {new Date(post.date).toLocaleDateString("en-US", {

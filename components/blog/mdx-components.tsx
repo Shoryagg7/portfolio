@@ -50,7 +50,7 @@ export const mdxComponents: MDXComponents = {
     </code>
   ),
   pre: ({ children }: { children?: ReactNode }) => (
-    <pre className="mt-5 overflow-x-auto rounded-xl border border-edge bg-raised p-5 font-mono text-sm leading-relaxed text-foreground [&_code]:border-0 [&_code]:bg-transparent [&_code]:p-0 [&_code]:text-[13px] [&_code]:text-foreground">
+    <pre className="mt-5 overflow-x-auto rounded-2xl border border-edge bg-raised p-5 font-mono text-sm leading-relaxed text-foreground [&_code]:border-0 [&_code]:bg-transparent [&_code]:p-0 [&_code]:text-[13px] [&_code]:text-foreground">
       {children}
     </pre>
   ),

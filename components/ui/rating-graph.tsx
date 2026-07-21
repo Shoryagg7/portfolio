@@ -70,7 +70,7 @@ export function RatingGraph({ history, label }: RatingGraphProps) {
         <circle cx={last.x} cy={last.y} r="3" fill="var(--accent-bright)" />
         <circle cx={last.x} cy={last.y} r="7" fill="var(--accent)" opacity="0.2" />
       </svg>
-      <figcaption className="mt-1 flex justify-between font-mono text-[10px] text-faint">
+      <figcaption className="mt-1 flex justify-between font-mono text-xs text-faint">
         <span>{min}</span>
         <span>{label}</span>
         <span>{max}</span>

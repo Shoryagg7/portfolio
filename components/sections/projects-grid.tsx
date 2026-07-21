@@ -14,13 +14,13 @@ export function ProjectsGrid() {
       title="Built, load-tested, shipped"
       lead="Not weekend demos. These have race conditions I found and fixed, numbers I actually measured, and trade-offs written down. Each one opens into a full case study."
     >
-      <Stagger className="grid gap-5 lg:grid-cols-2">
+      <Stagger className="grid gap-6 md:gap-8 lg:grid-cols-2">
         {projects.map((p) => (
           <StaggerItem key={p.slug}>
-            <article className="glow-hover group relative flex h-full flex-col rounded-xl border border-edge bg-raised/80 p-7">
+            <article className="glow-hover group relative flex h-full flex-col rounded-2xl border border-edge bg-raised/85 p-7 md:p-9">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="font-display text-2xl font-semibold text-foreground">
+                  <h3 className="font-display text-2xl font-semibold text-foreground md:text-3xl">
                     <Link href={`/projects/${p.slug}`} className="focus-visible:outline-none">
                       {/* Stretched link covers the card */}
                       <span className="absolute inset-0" aria-hidden />
@@ -64,7 +64,7 @@ export function ProjectsGrid() {
                       <GithubIcon aria-hidden className="size-4" />
                     </a>
                   )}
-                  <span className="flex items-center gap-1 font-mono text-xs text-accent">
+                  <span className="flex items-center gap-1 font-mono text-xs whitespace-nowrap text-accent">
                     case study
                     <ArrowUpRight
                       aria-hidden

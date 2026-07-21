@@ -29,14 +29,14 @@ export function Philosophy() {
       title="How I think about engineering"
       lead="Principles I actually apply. Each one traces back to a decision in my projects."
     >
-      <Stagger className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Stagger className="grid gap-6 sm:grid-cols-2 md:gap-8 lg:grid-cols-3">
         {principles.map((p) => {
           const Icon = icons[p.icon] ?? Wrench;
           return (
             <StaggerItem key={p.title}>
               <GlowCard className="h-full">
                 <Icon aria-hidden className="size-5 text-accent" />
-                <h3 className="mt-4 font-display text-lg font-medium text-foreground">
+                <h3 className="mt-5 font-display text-xl font-medium text-foreground">
                   {p.title}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted">{p.body}</p>

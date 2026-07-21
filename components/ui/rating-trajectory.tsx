@@ -13,12 +13,12 @@ export function RatingTrajectory({ stats }: { stats?: PlatformStats }) {
   const contests = stats.contests ?? history.length;
 
   return (
-    <div className="h-full rounded-xl border border-edge bg-raised/80 p-6">
+    <div className="h-full rounded-2xl border border-edge bg-raised/85 p-6 md:p-8">
       <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="font-display text-sm font-medium text-foreground">
           {stats.title} rating trajectory
         </h3>
-        <span className="font-mono text-[10px] text-faint">
+        <span className="font-mono text-xs text-faint">
           {stats.live ? "live · cached 6h" : "verified"}
         </span>
       </div>

@@ -26,7 +26,7 @@ export function ArchitectureDiagram({ data, title }: { data: DiagramData; title:
   const maxY = Math.max(...data.nodes.map((n) => n.y)) + NODE_H / 2 + 20;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-edge bg-raised/60 p-4">
+    <div className="overflow-x-auto rounded-2xl border border-edge bg-raised/60 p-4">
       <svg
         viewBox={`0 0 ${maxX} ${maxY}`}
         role="img"
@@ -138,7 +138,7 @@ export function ArchitectureDiagram({ data, title }: { data: DiagramData; title:
           );
         })}
       </svg>
-      <p className="mt-3 text-center font-mono text-[11px] text-faint">
+      <p className="mt-3 text-center font-mono text-xs text-faint">
         {title} — service <span className="text-accent">■</span> · datastore{" "}
         <span className="text-emerald-400">■</span> · stream{" "}
         <span className="text-amber-400">■</span>
