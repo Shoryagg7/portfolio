@@ -49,6 +49,17 @@ const staticStats: Record<string, PlatformStats> = {
     contests: 23,
     rankLabel: "Top 5%",
     live: false,
+    /*
+      Real 23-contest rating series, verified from LeetCode's own GraphQL. The
+      live fetch overwrites this when it succeeds, but LeetCode routinely blocks
+      the GitHub Actions runner's IP, and without a fallback the trajectory card
+      simply vanished on those builds (RatingTrajectory returns null below two
+      points). Codeforces never hit this because its API answers the runner.
+    */
+    ratingHistory: [
+      1538, 1561, 1581, 1598, 1628, 1633, 1644, 1619, 1621, 1684, 1691, 1718,
+      1792, 1856, 1827, 1771, 1819, 1852, 1878, 1922, 1974, 2014, 2013,
+    ],
     difficultySplit: { easy: 271, medium: 451, hard: 122 },
   },
 };
@@ -200,7 +211,9 @@ async function fetchLeetCode(): Promise<PlatformStats> {
       problemsSolved: totalSolved ?? fallback.problemsSolved,
       contests: attended.length || fallback.contests,
       rankLabel,
-      ratingHistory: ratings.length >= 2 ? ratings : undefined,
+      // Keep the verified fallback series if the live one came back too short,
+      // rather than blanking the trajectory on a partial success.
+      ratingHistory: ratings.length >= 2 ? ratings : fallback.ratingHistory,
       difficultySplit,
       live: true,
     };
