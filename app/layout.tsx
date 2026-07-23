@@ -3,7 +3,6 @@ import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { CommandPaletteProvider } from "@/components/command/command-palette-provider";
 import { CosmicBackdrop } from "@/components/space/cosmic-backdrop";
-import { CardSpotlight } from "@/components/ui/card-spotlight";
 import { profile } from "@/lib/content/profile";
 import { getAllPosts } from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
@@ -81,7 +80,6 @@ export default function RootLayout({
           }}
         />
         <CosmicBackdrop />
-        <CardSpotlight />
         <CommandPaletteProvider posts={posts}>{children}</CommandPaletteProvider>
       </body>
     </html>
