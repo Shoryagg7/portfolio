@@ -29,7 +29,7 @@ export function Section({
 }: SectionProps) {
   return (
     <section id={id} className={cn("relative scroll-mt-20 py-32 md:py-44", className)}>
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+      <div className="mx-auto max-w-7xl px-5 md:px-8 lg:px-12">
         {(kicker || title) && (
           <div
             className={cn(

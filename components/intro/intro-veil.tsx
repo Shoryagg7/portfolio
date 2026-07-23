@@ -46,7 +46,7 @@ const dismissScript = `
   ['pointerdown','keydown','wheel','touchstart'].forEach(function(evt){
     window.addEventListener(evt, skip, opts);
   });
-  window.setTimeout(function(){ d.setAttribute('data-intro','done'); }, 2800);
+  window.setTimeout(function(){ d.setAttribute('data-intro','done'); }, 3300);
 })();
 `;
 

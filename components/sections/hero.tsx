@@ -54,7 +54,7 @@ export function Hero({ cpStats }: { cpStats: PlatformStats[] }) {
       </div>
 
       {/* pt clears the mobile scene band; desktop keeps the original offset. */}
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pt-[356px] pb-20 md:px-8 md:pt-32">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pt-[356px] pb-20 md:px-8 md:pt-32 lg:px-12">
         <motion.p
           {...fade(0.05)}
           className="mb-5 inline-flex items-center gap-2 rounded-full border border-edge bg-raised/70 px-3.5 py-1.5 font-mono text-xs text-muted backdrop-blur"

@@ -156,12 +156,14 @@ body {
   will-change: transform;
 }
 .glow-hover:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-3px);
+  /* A clear accent boundary is the whole hover cue now: the border turns the
+     theme accent and a matching 1px ring doubles it to a crisp ~2px edge. No
+     diffuse glow. */
+  border-color: var(--accent);
+  transform: translateY(-4px);
   box-shadow:
     var(--shadow-lift),
-    0 0 0 1px var(--accent-dim),
-    0 16px 48px -16px var(--accent-glow);
+    0 0 0 1px var(--accent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -192,7 +194,7 @@ body {
   display: grid;
   place-items: center;
   background: var(--bg-deep);
-  animation: intro-veil 2.6s var(--ease-out-expo) forwards;
+  animation: intro-veil 3.1s var(--ease-out-expo) forwards;
 }
 
 /* Repeat visit, or reduced motion: never rendered at all. */
@@ -266,7 +268,7 @@ body {
     0.15s apart with a 0.2s life, so consecutive greetings barely touch. A longer
     life stacked three blurred greetings at once and read as a double exposure.
   */
-  animation: intro-greet 0.2s var(--ease-out-soft) calc(var(--i) * 0.15s) both;
+  animation: intro-greet 0.3s var(--ease-out-soft) calc(var(--i) * 0.2s) both;
 }
 
 /* The last card holds instead of flashing past, and takes the accent. */
@@ -275,7 +277,7 @@ body {
   display: inline-block;
   position: relative;
   white-space: nowrap;
-  animation: intro-greet-final 0.45s var(--ease-out-expo) 1.02s both;
+  animation: intro-greet-final 0.5s var(--ease-out-expo) 1.55s both;
 }
 
 .intro-final-word {
@@ -306,7 +308,7 @@ body {
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.75rem;
   color: var(--faint);
-  animation: intro-fade 0.8s var(--ease-out-soft) 1.45s both;
+  animation: intro-fade 0.8s var(--ease-out-soft) 2.15s both;
 }
 
 @keyframes intro-greet {

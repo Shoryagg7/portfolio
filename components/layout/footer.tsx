@@ -13,7 +13,7 @@ const links = [
 export function Footer() {
   return (
     <footer className="border-t border-edge bg-raised/40">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-faint sm:flex-row md:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-5 py-8 text-sm text-faint sm:flex-row md:px-8 lg:px-12">
         <p className="font-mono text-xs">
           © {new Date().getFullYear()} {profile.name} · built with Next.js · deployed on GitHub Pages
         </p>
