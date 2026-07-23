@@ -143,11 +143,28 @@ body {
 }
 
 /*
-  Utility: resting elevation + accent lift on hover, used by GlowCard.
-  The first pass declared a transform transition but never set a transform on
-  :hover, so the lift it promised never happened. It does now.
+  Utility: resting elevation + a cursor-tracked spotlight on hover, used by
+  GlowCard and the inline card articles.
+
+  The lift alone read as "something happened" rather than as a deliberate
+  affordance. This adds two pointer-driven layers, both fed by --mx/--my which
+  CardSpotlight updates per card:
+
+    ::before  a soft interior glow pooled under the cursor
+    ::after   a bright accent segment of the border, brightest nearest the cursor
+
+  Both are pointer-events:none and sit in the card's own stacking context
+  (isolation:isolate). The glow is z-index:-1 so it paints above the card's own
+  background but below content, without lifting children. That last part matters:
+  an earlier version lifted every direct child to z-index:1, which gave the
+  project cards' title row its own positioning context and collapsed their
+  full-card stretched link down to the title height. --mx/--my default to the
+  centre, so a card that never receives a pointer event (touch, or before
+  CardSpotlight mounts) still looks intentional.
 */
 .glow-hover {
+  position: relative;
+  isolation: isolate;
   box-shadow: var(--shadow-card);
   transition:
     border-color 200ms var(--ease-out-soft),
@@ -155,20 +172,72 @@ body {
     transform 320ms var(--ease-out-expo);
   will-change: transform;
 }
+
+/* Interior glow, pooled under the cursor. Behind content, above the card fill. */
+.glow-hover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out-soft);
+  background: radial-gradient(
+    460px circle at var(--mx, 50%) var(--my, 50%),
+    var(--accent-dim),
+    transparent 60%
+  );
+}
+
+/* Border spotlight: a mask leaves only a 1px ring, brightest nearest the cursor. */
+.glow-hover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 320ms var(--ease-out-soft);
+  padding: 1px;
+  background: radial-gradient(
+    280px circle at var(--mx, 50%) var(--my, 50%),
+    var(--accent-bright),
+    transparent 45%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
 .glow-hover:hover {
   border-color: var(--border-strong);
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   box-shadow:
     var(--shadow-lift),
-    0 0 0 1px var(--accent-dim),
-    0 16px 48px -16px var(--accent-glow);
+    0 20px 52px -18px var(--accent-glow);
+}
+.glow-hover:hover::before {
+  opacity: 1;
+}
+.glow-hover:hover::after {
+  opacity: 0.85;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .glow-hover {
-    transition: border-color 200ms ease;
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease;
     will-change: auto;
   }
+  /* Keep the glow, drop the movement. */
   .glow-hover:hover {
     transform: none;
   }
