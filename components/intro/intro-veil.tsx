@@ -1,8 +1,6 @@
-import { profile } from "@/lib/content/profile";
-
 /**
- * Cinematic first-visit intro: the name resolves out of black, then the veil
- * lifts to reveal the hero. Roughly 1.8s end to end.
+ * First-visit intro: a greeting cycles through several languages, then settles
+ * on a welcome line and the veil lifts to reveal the hero. Roughly 2.2s.
  *
  * Deliberately server-rendered HTML driven by CSS animations, with no client
  * component behind it. Three reasons:
@@ -17,6 +15,21 @@ import { profile } from "@/lib/content/profile";
  * The inline script runs before the veil is parsed, so a repeat visitor or
  * anyone with prefers-reduced-motion never sees a frame of it.
  */
+
+/**
+ * Hindi and Punjabi lead the non-English set on purpose: this is a portfolio
+ * from Patiala, and the greetings should say so before the copy does.
+ */
+const greetings = [
+  { text: "Hello", lang: "en" },
+  { text: "नमस्ते", lang: "hi" },
+  { text: "ਸਤ ਸ੍ਰੀ ਅਕਾਲ", lang: "pa" },
+  { text: "こんにちは", lang: "ja" },
+  { text: "Bonjour", lang: "fr" },
+  { text: "Hola", lang: "es" },
+  { text: "你好", lang: "zh" },
+];
+
 const dismissScript = `
 (function(){
   var d = document.documentElement;
@@ -33,23 +46,44 @@ const dismissScript = `
   ['pointerdown','keydown','wheel','touchstart'].forEach(function(evt){
     window.addEventListener(evt, skip, opts);
   });
-  window.setTimeout(function(){ d.setAttribute('data-intro','done'); }, 2000);
+  window.setTimeout(function(){ d.setAttribute('data-intro','done'); }, 2800);
 })();
 `;
 
 export function IntroVeil() {
-  const [first, last] = profile.name.split(" ");
-
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: dismissScript }} />
       <div id="intro-veil" aria-hidden>
+        {/*
+          Stage and subtitle share one wrapper. As direct children of the veil's
+          grid they became two separate rows, which stranded "to my portfolio"
+          near the bottom of the screen instead of under the greeting.
+        */}
         <div className="intro-inner">
-          <p className="intro-name">
-            {first} <span>{last}</span>
-          </p>
-          <span className="intro-rule" />
-          <p className="intro-role">Backend &amp; Distributed Systems Engineer</p>
+          <div className="intro-stage">
+            {greetings.map((g, i) => (
+              <span
+                key={g.lang}
+                lang={g.lang}
+                className="intro-greet"
+                // Index drives the stagger, so the timing stays in the stylesheet.
+                style={{ "--i": i } as React.CSSProperties}
+              >
+                {g.text}
+              </span>
+            ))}
+            {/*
+              "Welcome" and its subtitle animate as one block, in the same grid
+              cell as the greetings. Binding them together is what guarantees the
+              subtitle cannot appear while the greetings are still cycling; two
+              independent delays only happened to line up.
+            */}
+            <span className="intro-final">
+              <span className="intro-final-word">Welcome</span>
+              <span className="intro-final-sub">to my portfolio</span>
+            </span>
+          </div>
         </div>
         <p className="intro-hint">click anywhere to skip</p>
       </div>

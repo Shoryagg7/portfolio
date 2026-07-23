@@ -56,12 +56,17 @@ export function CosmicBackdrop() {
         className="absolute inset-x-0 -top-[10%] h-[130%]"
       />
 
-      {/* Keeps the wash from lifting the page background off true black at the edges. */}
+      {/*
+        Edge falloff. This used to ramp to fully opaque --bg-deep from 40% out,
+        which erased most of the wash before it ever reached a section. It now
+        starts later and stops short of opaque, so it settles the corners without
+        flattening the middle of the page back to black.
+      */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 90% 60% at 50% 50%, transparent 40%, var(--bg-deep) 100%)",
+            "radial-gradient(ellipse 100% 75% at 50% 50%, transparent 62%, rgba(5, 5, 10, 0.55) 100%)",
         }}
       />
     </div>

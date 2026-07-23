@@ -3,7 +3,7 @@ import { withBasePath } from "@/lib/site";
 
 export const profile: Profile = {
   name: "Shorya Gupta",
-  role: "Backend & Distributed Systems Engineer",
+  role: "Backend & Distributed Systems Engineer · Competitive Programmer",
   tagline: "I build reliable distributed systems.",
   intro:
     "Final-year Computer Science undergraduate at Thapar Institute. I build backend services that stay fast under load and keep working when something breaks. Mostly event-driven architectures, and the careful concurrency work that sits underneath them.",

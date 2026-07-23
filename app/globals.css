@@ -43,9 +43,9 @@
     0 24px 56px -16px rgba(0, 0, 0, 0.75);
 
   /* Deep-space wash. Consumed by the cosmic backdrop and section gradients. */
-  --nebula-core: rgba(79, 141, 255, 0.14);
-  --nebula-far: rgba(139, 124, 248, 0.1);
-  --nebula-cold: rgba(34, 200, 221, 0.08);
+  --nebula-core: rgba(79, 141, 255, 0.34);
+  --nebula-far: rgba(139, 124, 248, 0.26);
+  --nebula-cold: rgba(34, 200, 221, 0.2);
 
   /* Motion. Single source of truth so JS and CSS animations agree. */
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -57,9 +57,9 @@
   --accent-bright: #67dceb;
   --accent-dim: rgba(34, 200, 221, 0.12);
   --accent-glow: rgba(34, 200, 221, 0.35);
-  --nebula-core: rgba(34, 200, 221, 0.14);
-  --nebula-far: rgba(79, 141, 255, 0.1);
-  --nebula-cold: rgba(139, 124, 248, 0.08);
+  --nebula-core: rgba(34, 200, 221, 0.34);
+  --nebula-far: rgba(79, 141, 255, 0.26);
+  --nebula-cold: rgba(139, 124, 248, 0.2);
 }
 
 :root[data-accent="violet"] {
@@ -67,9 +67,9 @@
   --accent-bright: #ab9ffa;
   --accent-dim: rgba(139, 124, 248, 0.12);
   --accent-glow: rgba(139, 124, 248, 0.35);
-  --nebula-core: rgba(139, 124, 248, 0.14);
-  --nebula-far: rgba(79, 141, 255, 0.1);
-  --nebula-cold: rgba(34, 200, 221, 0.08);
+  --nebula-core: rgba(139, 124, 248, 0.34);
+  --nebula-far: rgba(79, 141, 255, 0.26);
+  --nebula-cold: rgba(34, 200, 221, 0.2);
 }
 
 @theme inline {
@@ -192,7 +192,7 @@ body {
   display: grid;
   place-items: center;
   background: var(--bg-deep);
-  animation: intro-veil 1.85s var(--ease-out-expo) forwards;
+  animation: intro-veil 2.6s var(--ease-out-expo) forwards;
 }
 
 /* Repeat visit, or reduced motion: never rendered at all. */
@@ -213,7 +213,7 @@ body {
 
 @keyframes intro-veil {
   0%,
-  58% {
+  77% {
     opacity: 1;
     visibility: visible;
   }
@@ -223,40 +223,81 @@ body {
   }
 }
 
+/*
+  The greeting stage. Every greeting is stacked in the same grid cell so they
+  cross-fade in place: laying them out in flow would make the box jump between
+  "Hola" and "ਸਤ ਸ੍ਰੀ ਅਕਾਲ" on every step.
+*/
 .intro-inner {
   text-align: center;
   padding: 0 1.25rem;
 }
 
-.intro-name {
-  font-family: var(--font-space-grotesk), system-ui, sans-serif;
-  font-size: clamp(2.5rem, 9vw, 5.5rem);
+.intro-stage {
+  display: grid;
+  place-items: center;
+  min-height: 1.25em;
+  /*
+    Typography lives on the stage so the cycling greetings and the final card
+    share it. Setting it only on .intro-greet meant "Welcome" silently dropped
+    to the inherited body size once it moved into its own wrapper.
+
+    next/font only subsets Latin, so Devanagari, Gurmukhi and CJK fall through
+    to whatever the OS ships. Listing the Noto families first keeps the shapes
+    consistent where they exist; browsers fall back per glyph, not per string.
+  */
+  font-family:
+    var(--font-space-grotesk),
+    "Noto Sans", "Noto Sans Devanagari", "Noto Sans Gurmukhi",
+    "Noto Sans JP", "Noto Sans SC", "Nirmala UI", "Segoe UI",
+    system-ui, sans-serif;
+  font-size: clamp(2.25rem, 8vw, 4.75rem);
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.05;
+  line-height: 1.15;
+}
+
+.intro-greet {
+  grid-area: 1 / 1;
+  white-space: nowrap;
   color: var(--foreground);
-  animation: intro-resolve 1.5s var(--ease-out-expo) forwards;
-}
-.intro-name span {
-  color: var(--faint);
-}
-
-.intro-rule {
-  display: block;
-  height: 1px;
-  margin: 1.5rem auto 0;
-  width: min(280px, 60vw);
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  transform-origin: center;
-  animation: intro-rule 1.4s var(--ease-out-expo) 0.35s backwards;
+  opacity: 0;
+  /*
+    0.15s apart with a 0.2s life, so consecutive greetings barely touch. A longer
+    life stacked three blurred greetings at once and read as a double exposure.
+  */
+  animation: intro-greet 0.2s var(--ease-out-soft) calc(var(--i) * 0.15s) both;
 }
 
-.intro-role {
-  margin-top: 1.25rem;
-  font-family: var(--font-jetbrains-mono), monospace;
-  font-size: 0.8125rem;
+/* The last card holds instead of flashing past, and takes the accent. */
+.intro-final {
+  grid-area: 1 / 1;
+  display: inline-block;
+  position: relative;
+  white-space: nowrap;
+  animation: intro-greet-final 0.45s var(--ease-out-expo) 1.02s both;
+}
+
+.intro-final-word {
   color: var(--accent);
-  animation: intro-fade 1.2s var(--ease-out-soft) 0.55s backwards;
+}
+
+/*
+  Positioned out of flow so the two-line final state does not shift "Welcome"
+  off the baseline the single-line greetings were sitting on.
+*/
+.intro-final-sub {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 1rem;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.875rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--muted);
 }
 
 .intro-hint {
@@ -265,35 +306,38 @@ body {
   font-family: var(--font-jetbrains-mono), monospace;
   font-size: 0.75rem;
   color: var(--faint);
-  animation: intro-fade 1s var(--ease-out-soft) 1s backwards;
+  animation: intro-fade 0.8s var(--ease-out-soft) 1.45s both;
 }
 
-@keyframes intro-resolve {
+@keyframes intro-greet {
   0% {
     opacity: 0;
-    filter: blur(18px);
-    transform: translateY(14px) scale(0.985);
+    transform: translateY(8px);
+    filter: blur(5px);
   }
-  55% {
+  30%,
+  70% {
     opacity: 1;
-    filter: blur(0);
     transform: none;
+    filter: blur(0);
   }
   100% {
-    opacity: 1;
-    filter: blur(0);
-    transform: none;
+    opacity: 0;
+    transform: translateY(-8px);
+    filter: blur(5px);
   }
 }
 
-@keyframes intro-rule {
+@keyframes intro-greet-final {
   from {
-    transform: scaleX(0);
     opacity: 0;
+    transform: translateY(9px) scale(0.99);
+    filter: blur(9px);
   }
   to {
-    transform: scaleX(1);
-    opacity: 0.7;
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
   }
 }
 
@@ -303,16 +347,6 @@ body {
   }
   to {
     opacity: 1;
-  }
-}
-
-/*
-  Belt and braces. The inline script already prevents the veil from rendering
-  under reduced motion, but if it ever fails to run the veil must not linger.
-*/
-@media (prefers-reduced-motion: reduce) {
-  #intro-veil {
-    display: none;
   }
 }
 

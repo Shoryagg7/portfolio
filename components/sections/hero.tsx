@@ -63,7 +63,7 @@ export function Hero({ cpStats }: { cpStats: PlatformStats[] }) {
             <span className="absolute h-full w-full rounded-full bg-emerald-400 opacity-70 motion-safe:animate-ping [animation-duration:2s]" />
             <span className="relative size-1.5 rounded-full bg-emerald-400" />
           </span>
-          open to SWE roles · real-time & high-availability systems
+          Open to SWE roles · real-time &amp; high-availability systems
         </motion.p>
 
         <motion.h1
@@ -75,7 +75,7 @@ export function Hero({ cpStats }: { cpStats: PlatformStats[] }) {
         </motion.h1>
 
         <motion.p {...fade(0.25)} className="mt-4 font-mono text-sm text-accent md:text-base">
-          Backend &amp; Distributed Systems Engineer
+          {profile.role}
         </motion.p>
 
         <motion.p {...fade(0.35)} className="mt-6 max-w-xl text-base leading-relaxed text-muted md:text-lg">
