@@ -14,6 +14,12 @@ const focusAreas = [
   "Competitive programming",
 ];
 
+const achievements = [
+  "Merit Scholarship — GPA-based academic excellence (9.34 AGPA)",
+  "SPHINX'24 Hackathon Runner-Up — 2500+ registrations, MNIT Jaipur",
+  "Runner-Up, Inter-College Coding Contest, Thapar Institute",
+];
+
 export function About() {
   return (
     <Section
@@ -61,9 +67,13 @@ export function About() {
                   <p className="mt-2 font-mono text-xs text-faint">
                     {profile.years} · CGPA {profile.gpa}
                   </p>
-                  <p className="mt-1 font-mono text-xs text-faint">
-                    Merit Scholarship for academic excellence (9.34 AGPA)
-                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {achievements.map((item) => (
+                      <li key={item} className="font-mono text-xs text-faint">
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </GlowCard>

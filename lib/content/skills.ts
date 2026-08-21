@@ -4,13 +4,13 @@ export const skillCategories: SkillCategory[] = [
   {
     name: "Backend",
     icon: "server",
-    skills: ["Python", "FastAPI", "REST APIs", "SQLAlchemy", "Pydantic", "Async programming"],
+    skills: ["C++", "Python", "SQL", "FastAPI", "REST APIs", "SQLAlchemy", "Pydantic", "Async Python"],
     note: "Low-latency APIs and event-driven services",
   },
   {
     name: "Databases & Caching",
     icon: "database",
-    skills: ["PostgreSQL", "Redis", "FAISS", "SQL", "Query optimization", "Vector search"],
+    skills: ["PostgreSQL", "Redis", "pgvector", "Query optimization", "Vector search"],
     note: "Correctness under concurrency, speed under load",
   },
   {
@@ -40,7 +40,7 @@ export const skillCategories: SkillCategory[] = [
   {
     name: "AI / GenAI",
     icon: "sparkles",
-    skills: ["LLM integration", "RAG", "Embeddings", "Semantic search", "Prompt engineering"],
-    note: "LLM systems with real cost & latency budgets",
+    skills: ["LangGraph", "RAG", "Vector search", "Embeddings", "LLM APIs", "Sentence-Transformers"],
+    note: "Agentic pipelines with real cost & latency budgets",
   },
 ];

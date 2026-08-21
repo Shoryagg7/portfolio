@@ -23,7 +23,7 @@ export const principles: Principle[] = [
   },
   {
     title: "Explicit trade-offs",
-    body: "Kafka over Pub/Sub, FAISS over a hosted vector DB, SKIP LOCKED over a message queue. Every one of those choices writes down what it costs. If I can't state the trade-off, I don't understand the decision yet.",
+    body: "Kafka over Pub/Sub, pgvector over a hosted vector DB, SKIP LOCKED over a message queue. Every one of those choices writes down what it costs. If I can't state the trade-off, I don't understand the decision yet.",
     icon: "scale",
   },
   {
