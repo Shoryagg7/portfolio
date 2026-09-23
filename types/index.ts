@@ -21,21 +21,6 @@ export interface Profile {
   resumePath: string;
 }
 
-export interface EngineeringDecision {
-  title: string;
-  context: string;
-  decision: string;
-  why: string;
-  tradeoffs: string;
-  lesson: string;
-}
-
-export interface PerformanceMetric {
-  label: string;
-  value: string;
-  detail?: string;
-}
-
 export interface ArchitectureNode {
   id: string;
   label: string;
@@ -57,23 +42,34 @@ export interface ArchitectureDiagram {
   edges: ArchitectureEdge[];
 }
 
+export interface ProjectResult {
+  label: string;
+  value: string;
+  /** Qualifier under the value: the test used, the unit, or a caveat. */
+  note?: string;
+}
+
+export interface ProjectResults {
+  rows: ProjectResult[];
+  /** The file these numbers are quoted from, so each one can be checked. */
+  source: { label: string; href: string };
+}
+
+/** A single result worth calling out on its own, below the results table. */
+export interface ProjectFinding {
+  label: string;
+  text: string;
+}
+
 export interface Project {
   slug: string;
   name: string;
   tagline: string;
   summary: string;
-  year: string;
   stack: string[];
-  overview: string;
-  problem: string;
-  architectureNotes: string[];
-  diagram: ArchitectureDiagram;
-  decisions: EngineeringDecision[];
-  performance: PerformanceMetric[];
-  challenges: string[];
-  lessons: string[];
-  links: { github?: string; demo?: string; docs?: string };
-  highlights: string[];
+  results?: ProjectResults;
+  finding?: ProjectFinding;
+  links: { github: string };
 }
 
 export type PlatformId = "codeforces" | "codechef" | "leetcode";
