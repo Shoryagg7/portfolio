@@ -20,7 +20,7 @@ export const profile: Profile = {
     leetcode: "https://leetcode.com/u/shoryag7",
     email: "shoryag.gupta@gmail.com",
   },
-  resumePath: withBasePath("/resume.pdf"),
+  resumePath: withBasePath("/RESUME_SHORYA.pdf"),
 };
 
 export const heroStats = [

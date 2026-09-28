@@ -174,7 +174,7 @@ Hosted on **GitHub Pages** via GitHub Actions ([`.github/workflows/deploy.yml`](
 | CP handles & fallbacks | `lib/services/cp-stats.ts` |
 | Blog posts | add `.mdx` to `content/blog/` |
 | Accent & background palette | `app/globals.css` (`:root` tokens) |
-| Résumé PDF | `public/resume.pdf` |
+| Résumé PDF | `public/RESUME_SHORYA.pdf` (path set in `lib/content/profile.ts`) |
 
 ---
 

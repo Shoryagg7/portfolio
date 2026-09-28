@@ -40,6 +40,26 @@ export interface ArchitectureEdge {
 export interface ArchitectureDiagram {
   nodes: ArchitectureNode[];
   edges: ArchitectureEdge[];
+  /**
+   * A horizontal dashed line splitting the diagram into two labelled zones,
+   * e.g. what stays on this machine vs what reaches a third party.
+   */
+  boundary?: { y: number; above: string; below: string };
+}
+
+/** One stop on a request's path through the system, in order. */
+export interface FlowStep {
+  title: string;
+  body: string;
+}
+
+export interface EngineeringDecision {
+  title: string;
+  context: string;
+  decision: string;
+  why: string;
+  tradeoffs: string;
+  lesson: string;
 }
 
 export interface ProjectResult {
@@ -65,10 +85,22 @@ export interface Project {
   slug: string;
   name: string;
   tagline: string;
+  /** Two sentences: the home page card and the page's meta description. */
   summary: string;
+  year: string;
   stack: string[];
+  /** Three short, specific claims for the home page card. */
+  highlights: string[];
+  overview: string;
+  problem: string;
+  diagram: ArchitectureDiagram;
+  /** The diagram walked through as a request actually travels it. */
+  flow: FlowStep[];
+  decisions: EngineeringDecision[];
   results?: ProjectResults;
   finding?: ProjectFinding;
+  challenges: string[];
+  limitations: string[];
   links: { github: string };
 }
 
